@@ -1,0 +1,85 @@
+.fl .kbn__care h3 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .95; font-size: clamp(1.5rem, 3.6vw, 2.75rem); }
+.fl .kbn__care .t-prose { margin-inline: auto; text-align: center; }
+@media (max-width: 47.99rem) { .fl .kbn__view { width: 100%; } .fl .kbn__n { font-size: 3.4cqi; } }
+
+/* ---------- the seat, one among many: rows of church chairs from behind ---------- */
+.fl .congregation { display: grid; justify-items: center; gap: .35rem; padding: 2.5rem .5rem 1.5rem; background: var(--paper-2); border-radius: 6px; overflow: hidden; }
+.fl .crow { display: flex; justify-content: center; gap: calc(var(--s) * .55rem); }
+.fl .congregation .chair { width: calc(var(--s) * clamp(2.6rem, 4.6vw, 3.9rem)); flex: none; }
+.fl .congregation .chair .back { fill: #2A2A2A; } .fl .congregation .chair .frame { stroke: #9A9A9A; }
+.fl .congregation .chair.lit .back { fill: var(--red); }
+.fl .congregation .chair__card { font-size: calc(var(--s) * clamp(.42rem, .7vw, .6rem)); padding: .3em .1em; width: 86%; top: 18%; letter-spacing: .02em; min-height: 0; }
+.fl .congregation .chair__card small { display: none; }
+.fl .congregation .chair.is-you .chair__card { box-shadow: none; outline: 2px solid #fff; }
+.fl .congregation .chair.plus .chair__card { background: #fff; color: var(--ink); white-space: normal; line-height: 1.05; }
+.fl .seated .congregation { background: transparent; transform: scale(1.25); transform-origin: 50% 70%; margin-bottom: 2rem; }
+@media (max-width: 47.99rem) { .fl .congregation .chair { width: calc(var(--s) * 6.4vw); } .fl .seated .congregation { transform: none; } }
+
+/* ---------- the picture becomes the writing (About) ---------- */
+.fl .mz__pin { position: relative; height: 100svh; overflow: hidden; display: grid; place-items: center; background: var(--paper); }
+.fl .mz__word { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .01em; line-height: .86; text-align: center;
+  font-size: clamp(4rem, 17vw, 17rem); background-size: cover; background-position: center; -webkit-background-clip: text; background-clip: text; color: transparent; filter: grayscale(1); will-change: transform; }
+.fl .mz__cap { position: absolute; left: var(--gutter); right: var(--gutter); bottom: clamp(1.5rem, 6vh, 3rem); display: flex; justify-content: space-between; align-items: baseline; }
+@media (max-width: 47.99rem) { .fl .mz__word { font-size: 22vw; } }
+.fl .congregation .chair.plus .chair__card { text-overflow: clip; overflow: visible; font-size: calc(var(--s) * clamp(.36rem, .6vw, .5rem)); padding: .25em .05em; }
+
+/* ---------- Known by Name = a CROSS of small portraits (Revision 27) ---------- */
+.fl .kbn__view.cross { width: auto; height: min(62svh, 44rem); max-width: calc(100% - 2 * var(--gutter)); overflow: visible; position: relative; z-index: 1; }
+.fl .kbn__head { position: relative; z-index: 2; }
+.fl .kbn__view.cross .kbn__wall { overflow: visible; }
+.fl .kbn__pin { overflow: hidden; }
+.fl .kbn__view.cross .kbn__t { box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.fl .kbn__view.cross .kbn__n { font-size: 6cqi; transform: translateY(-50%) rotate(-5deg); }
+.fl .kbn__view.cross .kbn__n.left { text-align: right; }
+@media (max-width: 47.99rem) { .fl .kbn__view.cross { height: auto; width: calc(100% - 11rem); } .fl .kbn__view.cross .kbn__n { font-size: 9cqi; } }
+/* Revision 28: the pinned stage holds heading, the gathering cross, and the line beneath it */
+.fl .kbn__pin { gap: clamp(1rem, 2.6vh, 1.75rem); padding-block: clamp(4rem, 9vh, 5.5rem) 1.5rem; }
+.fl .kbn__view.cross { height: min(54svh, 40rem); }
+.fl .kbn__view.cross .kbn__t { rotate: 0deg; }
+.fl .kbn__care { padding: 0; gap: .6rem; }
+.fl .kbn__care .t-prose { font-size: clamp(.9375rem, 1.3vw, 1.125rem); max-width: 38rem; }
+.fl .kbn__note { text-align: center; }
+@media (max-width: 47.99rem) { .fl .kbn__view.cross { height: auto; width: calc(100% - 11rem); } }
+.fl .kbn__view.cross .kbn__t img { transform: rotate(var(--rot, 0deg)) scale(1.06); }
+
+.fl .kbn__view.cross .kbn__t { overflow: visible; background: transparent; box-shadow: none; }
+.fl .kbn__view.cross .kbn__t img { box-shadow: 0 1px 3px rgba(0,0,0,.28); }
+
+/* ---------- Revision 29: the cross is the section's hero; heading and the line sit beside it on laptop ---------- */
+.fl .kbn__pin { grid-template-columns: 1fr; }
+@media (min-width: 60rem) {
+  .fl .kbn__pin { grid-template-columns: minmax(16rem, 1fr) auto minmax(16rem, 1fr); grid-template-rows: 1fr auto; align-items: center; column-gap: clamp(1.5rem, 4vw, 4rem);
+    padding: clamp(4rem, 9vh, 5rem) var(--gutter) clamp(1.5rem, 4vh, 2.5rem); }
+  .fl .kbn__head { grid-column: 1; grid-row: 1; text-align: left; align-self: start; padding-top: 8vh; width: auto; margin: 0; }
+  .fl .kbn__view.cross { grid-column: 2; grid-row: 1 / span 2; height: min(84svh, 56rem); max-width: none; }
+  .fl .kbn__care { grid-column: 3; grid-row: 1; text-align: left; justify-items: start; align-self: end; padding-bottom: 6vh; width: auto; margin: 0; }
+  .fl .kbn__care .t-prose { text-align: left; margin: 0; }
+  .fl .kbn__note { grid-column: 3; grid-row: 2; text-align: left; }
+}
+.fl .kbn__view.cross .kbn__t img { box-shadow: 0 1px 2px rgba(0,0,0,.3); }
+.fl .kbn__view.cross .kbn__n { font-size: 5cqi; }
+@media (max-width: 47.99rem) { .fl .kbn__view.cross { width: calc(100% - 8rem); } .fl .kbn__view.cross .kbn__n { font-size: 8cqi; } }
+@media (min-width: 60rem) {
+  .fl .kbn__head { align-self: end; padding-top: 0; padding-bottom: 6vh; }
+  .fl .kbn__head h2 { font-size: clamp(2rem, 3.4vw, 3.5rem); }
+}
+@media (min-width: 60rem) { .fl .kbn__care h3 { font-size: clamp(1.4rem, 2.3vw, 2.2rem); } }
+
+/* ===== Revision 31 ===== */
+/* entrance: the scroll is the playhead */
+.fl .ent__hint { position: absolute; right: var(--gutter); bottom: 1.25rem; color: var(--ash); transition: opacity .4s; }
+.fl .ent.is-landed .ent__hint { opacity: 0; }
+/* CHURCH ON CAMPUS: the type slides through a moving wall of photographs; "Church" is cut from a picture */
+.fl .coc__wall { position: absolute; inset: -12% 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.5rem, 1.2vw, 1rem); padding: 0 clamp(.5rem, 1.2vw, 1rem); pointer-events: none; }
+.fl .coc__col { display: grid; gap: clamp(.5rem, 1.2vw, 1rem); align-content: start; will-change: transform; }
+.fl .coc__col:nth-child(even) { margin-top: 18vh; }
+.fl .coc__col figure { margin: 0; aspect-ratio: 4 / 5; overflow: hidden; }
+.fl .coc__col img { width: 100%; height: 100%; object-fit: cover; }
+.fl .coc__type { position: relative; z-index: 2; display: grid; gap: 0; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; line-height: .82; letter-spacing: -.01em; }
+.fl .coc__type span { display: block; white-space: nowrap; will-change: transform; }
+.fl .coc__l1 { font-size: clamp(5rem, 17vw, 18rem); padding-left: var(--gutter); background-color: var(--ink); }
+.fl .coc__l2 { font-size: clamp(3rem, 9vw, 10rem); color: var(--red); background: var(--paper); width: max-content; padding: 0 .12em; }
+.fl .coc__pin::before { content: ""; position: absolute; inset: 0; z-index: 1; background: rgba(255,255,255,.72); pointer-events: none; }
+@media (max-width: 47.99rem) { .fl .coc__wall { grid-template-columns: repeat(3, 1fr); } .fl .coc__col:nth-child(4) { display: none; } .fl .coc__l1 { font-size: 16.5vw; } .fl .coc__l2 { font-size: 9vw; } .fl .coc__col figure { aspect-ratio: 9 / 20; } }
+/* declaration: a ghost layer drifts the other way behind the solid rows */
+.fl .slide__ghosts { position: absolute; inset: 0; z-index: 1; display: grid; align-content: space-around; pointer-events: none; }

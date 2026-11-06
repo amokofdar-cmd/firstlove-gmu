@@ -1,0 +1,95 @@
+      gsap.ticker.add(function (t) { lenis.raf(t * 1000); });
+      gsap.ticker.lagSmoothing(0);
+      FL.lenis = lenis;
+      if (document.documentElement.classList.contains("fl-intro")) lenis.stop();   // the intro owns the screen until it lifts
+      FL.smooth = { engaged: document.documentElement.classList.contains("lenis"), version: lenis.version || "", reason: "" };
+      if (!FL.smooth.engaged) throw new Error("Lenis constructed but html.lenis is missing");
+    } catch (e) { FL.smooth.reason = String(e); console.error("[First Love] SMOOTH SCROLL DID NOT ENGAGE:", e); }
+  };
+
+  /* ---------- decode photographs before they arrive (Revision 33: no first-sight decode hitch mid-scroll) ---------- */
+  var predecode = function () {
+    var urls = {}, imgs = $$("img");
+    imgs.forEach(function (im) { im.decoding = im.closest(".kbn__t") ? "sync" : "async"; });   // a face of the cross is never painted before it is ready (it would flash empty)
+    $$(".photo-type, [style*='background-image']").forEach(function (el) { var m = /url\(["']?([^"')]+)/.exec(el.style.backgroundImage || ""); if (m) urls[m[1]] = el; });
+    var warm = function (src) { var i = new Image(); i.src = src; if (i.decode) i.decode().catch(function () {}); };
+    if (!("IntersectionObserver" in window)) { Object.keys(urls).forEach(warm); return; }
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (!e.isIntersecting) return; io.unobserve(e.target);
+      if (e.target.tagName === "IMG") { if (e.target.decode) e.target.decode().catch(function () {}); } else { var m = /url\(["']?([^"')]+)/.exec(e.target.style.backgroundImage || ""); if (m) warm(m[1]); } }); }, { rootMargin: "250% 0px" });
+    imgs.concat(Object.keys(urls).map(function (u) { return urls[u]; })).forEach(function (el) { io.observe(el); });
+  };
+
+  /* ---------- Revision 59: the keep-scrolling cue. One solid red downward chevron (the word SCROLL dropped by Kofi), on its own small paper
+     plate at the foot of the screen. Kofi, 2026-11-04: it is there ALL the time, from the moment any intro is done to the
+     last screen of the page (where nothing is left below). It also steps away while a form field is being typed in and
+     while the menu is open. ---------- */
+  var cue = function () {
+    var host = $(".fl.site") || document.body, el = document.createElement("div");
+    el.className = "cue"; el.setAttribute("aria-hidden", "true");
+    el.innerHTML = '<svg class="cue__c" viewBox="0 0 26 15"><path d="M3 3l10 9 10-9"/></svg>';   // Kofi, 2026-11-05: the arrow alone, no word
+    host.appendChild(el);
+    var shown = false, introOk = !$(".ent") || FL.introDone;
+    addEventListener("fl:intro-done", function () { introOk = true; tick(); });
+    var more = function () { return document.documentElement.scrollHeight - (scrollY + innerHeight) > innerHeight * 0.5; };   // not in the last screen
+    var busy = function () { var a = document.activeElement; return document.documentElement.classList.contains("menu-open") || (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); };
+    var tick = function () {
+      var want = !!(introOk && more() && !busy());
+      if (want !== shown) { el.classList.toggle("is-on", want); shown = want; }
+    };
+    addEventListener("scroll", tick, { passive: true }); addEventListener("resize", tick);
+    addEventListener("focusin", tick); addEventListener("focusout", function () { setTimeout(tick, 0); });
+    setInterval(tick, 500);                                 // the menu, late layout
+    tick();
+    FL.cue = { el: el, state: function () { return { shown: shown, more: more() }; } };
+  };
+
+  FL.ready(function () {
+    predecode(); pageSwap();
+    nav(); faqs(); forms(); footFit(); cue();
+    $$("[data-sec='entrance']").forEach(entrance);
+    $$("[data-sec='beam']").forEach(beam);
+    $$("[data-sec='message']").forEach(message);
+    $$("[data-sec='fork']").forEach(fork);
+    $$("[data-sec='invite']").forEach(invitation);
+    $$("[data-sec='seats']").forEach(seats);
+    $$("[data-sec='next']").forEach(nextGathering);
+    $$("[data-sec='nextline']").forEach(nextLine);
+    $$("[data-justcome]").forEach(function (el) { var u = FL.upcoming(1, 8)[0]; if (!u) { el.remove(); return; }   // the real next gathering, or nothing
+      el.innerHTML = "or just come<b> // " + u.title + " // " + FL.when(u.start) + " // " + u.where + "</b>"; });
+    FL.gsap().then(function (gsap) {
+      smooth(gsap);
+      $$("[data-sec='coc']").forEach(function (r) { coc(r, gsap); });
+      $$("[data-sec='slide']").forEach(function (r) { slide(r, gsap); });
+      $$("[data-sec='walk']").forEach(function (r) { walk(r, gsap); });
+      $$("[data-sec='phead']").forEach(function (r) { pagehead(r, gsap); });
+      $$("[data-sec='kinetic']").forEach(function (r) { kinetic(r, gsap); });
+      $$("[data-sec='dorms']").forEach(function (r) { dorms(r, gsap); });
+      $$("[data-sec='map']").forEach(function (r) { campus(r, gsap); });
+      $$("[data-sec='known']").forEach(function (r) { known(r, gsap); });
+      $$("[data-sec='origin']").forEach(function (r) { origin(r, gsap); });
+      $$("[data-fx='grow'],[data-fx='shrink']").forEach(function (el) { growShrink(el, gsap); });
+      $$("[data-sec='expand']").forEach(function (r) { expand(r, gsap); });
+      $$("[data-sec='drift']").forEach(function (r) { drift(r); });
+      $$("[data-sec='manifesto']").forEach(function (r) { manifesto(r, gsap); });
+      $$("[data-sec='kbn']").forEach(function (r) { kbn(r, gsap); });
+      $$("[data-assemble]").forEach(function (h) { assemble(h, gsap); });
+      $$("[data-sec='message']").forEach(function (r) { msgReveal(r, gsap); });
+      $$("[data-fx='values']").forEach(function (l) { valuesIn(l, gsap); });
+      $$("[data-fx='beliefs']").forEach(function (b) { beliefsIn(b, gsap); });
+      $$("[data-sec='calendar']").forEach(function (r) { calendar(r, gsap); });
+      $$("[data-sec='seek']").forEach(function (r) { seek(r, gsap); });
+      $$("[data-sec='opening']").forEach(function (r) { opening(r, gsap); });
+      $$("[data-sec='explain']").forEach(function (r) { explain(r, gsap); });
+      $$("[data-sec='band']").forEach(function (r) { band(r, gsap); });
+      floats(gsap);
+      if ($("[data-sec='posters']")) gatheringsFlow(gsap);
+      landOnHash();
+      $$("[data-sec='maskzoom']").forEach(function (r) { maskZoom(r, gsap); });
+      var resort = function () { window.ScrollTrigger.sort(); window.ScrollTrigger.refresh(); };
+      if (document.fonts) document.fonts.ready.then(resort);
+      addEventListener("load", resort);
+    });
+  });
+})();
+
+</script>

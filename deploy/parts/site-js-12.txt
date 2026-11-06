@@ -1,0 +1,93 @@
+      gsap.fromTo(row, { x: innerWidth < 768 ? 16 : 40 }, { x: 0, ease: "none", scrollTrigger: { trigger: row, start: "top bottom", end: "top 88%", scrub: true } });   // slides in, never fades (its red stays solid)
+    });
+  };
+
+
+
+  // Revision 37: the opening is ONE unit. The declaration rises out of its masks as the intro lifts; its explanation is
+  // simply there beneath it. The two lines drift on their own and part as you scroll on; the picture pans inside CHURCH.
+  var opening = function (root, gsap) {
+    var l1 = $(".coc__l1", root), l2 = $(".coc__l2", root), p = 0, d = 0;
+    if (FL.reduced) return;
+    window.ScrollTrigger.create({ trigger: root, start: "top top", end: "bottom top", onUpdate: function (st) { p = st.progress; } });
+    FL.loop(root, function () {
+      d += 0.02;
+      l1.style.translate = (Math.sin(d * 0.6) * 1.1 - p * 9).toFixed(2) + "vw 0";
+      l2.style.translate = (Math.cos(d * 0.5) * 1.1 + p * 9).toFixed(2) + "vw 0";
+      l1.style.backgroundPosition = (50 + Math.sin(d * 0.21) * 14 + p * 20).toFixed(2) + "% " + (38 + Math.cos(d * 0.17) * 6).toFixed(2) + "%";
+    });
+    gsap.set(l1, { opacity: 0 }); gsap.set(l2, { visibility: "hidden" });   // the red line never fades (it would read pink): it appears, solid
+    var rise = function () { softWipe([l1], gsap, { duration: 1.0 }); gsap.set(l2, { visibility: "visible", delay: 0.45 }); };
+    if ($(".ent") && !FL.introDone) addEventListener("fl:intro-leaving", function () { setTimeout(rise, 120); }, { once: true }); else rise();   // writes itself as the curtain rises
+  };
+  // Revision 37.9: a feathered wipe. A soft edge sweeps across whole letters (no hard mask, so no glyph is ever cut
+  // into a false shape mid-flight); the mask is removed when it finishes, so it costs nothing afterwards.
+  var softWipe = function (els, gsap, o) {        // Revision 41: a word fades in where it stands. No mask, no clip, no movement:
+    o = o || {}; els = [].concat(els).filter(Boolean); if (!els.length || FL.reduced) return;   // a letter is never cut or deformed
+    els.forEach(function (el) { el.classList.remove("wipe", "wipe-down"); el.style.removeProperty("--wp"); });
+    gsap.fromTo(els, { opacity: 0 }, { opacity: 1, duration: o.duration || 0.7, stagger: o.stagger || 0.12, delay: o.delay || 0, ease: "power1.out" });
+  };
+
+  /* ---------- page to page (2026-11-02): out faster than in. Off under reduced motion. ---------- */
+  var pageSwap = function () {
+    if (FL.reduced) return;
+    var panel = document.createElement("div"); panel.className = "swap"; panel.setAttribute("aria-hidden", "true"); document.body.appendChild(panel);
+    var arriving = sessionStorage.getItem("fl-swap") === "1"; sessionStorage.removeItem("fl-swap");
+    if (arriving && !$(".ent:not(.is-gone)")) { panel.classList.add("is-cover"); requestAnimationFrame(function () { requestAnimationFrame(function () { panel.classList.remove("is-cover"); panel.classList.add("is-open"); }); }); }
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest && e.target.closest("a[href]"); if (!a || e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || a.target === "_blank") return;
+      var url = new URL(a.href, location.href); if (url.origin !== location.origin || !/\.html$/.test(url.pathname)) return;
+      if (url.pathname === location.pathname) return;            // same page: the anchor scroll handles it
+      e.preventDefault(); sessionStorage.setItem("fl-swap", "1");
+      panel.classList.remove("is-open"); panel.classList.add("is-closing");
+      setTimeout(function () { location.href = url.href; }, 360);
+    });
+    addEventListener("pageshow", function (ev) { if (ev.persisted) { panel.classList.remove("is-closing", "is-cover"); } });   // back/forward cache
+  };
+  /* ---------- Revision 35/36 ---------- */
+  // About opens on a light that seeks: it sweeps the dark and finds four lines, one at a time (Revision 36.1)
+  var seek = function (root, gsap) {
+    var pin = $(".seek__pin", root), lines = $$(".seek__line", root), cv = $(".seek__light", root), ctx = cv.getContext("2d"), hint = $(".seek__hint", root);
+    if (FL.reduced) { root.classList.add("is-static"); return; }
+    var ptr = FL.pointer(root), prog = 0, sx = null, sy = null, last = 0, found = lines.map(function () { return 0; });
+    window.ScrollTrigger.create({ trigger: pin, start: "top top", end: "+=440%", pin: true, scrub: true, onUpdate: function (st) { prog = st.progress; } });
+    var centre = function (el) { var r = el.getBoundingClientRect(), p = pin.getBoundingClientRect(); return [r.left - p.left + r.width / 2, r.top - p.top + r.height / 2]; };
+    FL.loop(root, function (t) {
+      var dt = Math.min(0.05, t - last || 0.016); last = t;
+      var d = FL.fit(cv), W = d.cw, H = d.ch, n = lines.length;
+      // the scroll walks the light from line to line and lets it dwell on each; before the first, it wanders the dark
+      var k = prog * (n + 0.6) - 0.35, i = clamp(Math.floor(k), 0, n - 1), f = clamp(k - i, 0, 1), e = f < 0.55 ? 0 : (f - 0.55) / 0.45;
+      e = e * e * (3 - 2 * e);
+      var a = centre(lines[i]), b = centre(lines[Math.min(n - 1, i + 1)]), tx, ty;
+      if (k < 0) { tx = W * (0.5 + 0.32 * Math.sin(t * 0.5)); ty = H * (0.35 + 0.12 * Math.cos(t * 0.37)); }
+      else { tx = a[0] + (b[0] - a[0]) * e; ty = a[1] + (b[1] - a[1]) * e; }
+      if (ptr.active) { tx += (ptr.px - tx) * 0.22; ty += (ptr.py - ty) * 0.22; }   // a pointer or a finger pulls the light a little
+      if (sx === null) { sx = tx; sy = ty; }
+      sx += (tx - sx) * Math.min(1, dt * 5); sy += (ty - sy) * Math.min(1, dt * 5);
+      var R = Math.max(150, Math.min(W, H) * (FL.small() ? 0.34 : 0.3)), ox = FL.small() ? W * 0.5 : W * 0.06, oy = H + 20;
+      ctx.setTransform(d.d, 0, 0, d.d, 0, 0); ctx.fillStyle = "#0B0B0B"; ctx.fillRect(0, 0, W, H);
+      var dist = Math.hypot(sx - ox, sy - oy), ang = Math.atan2(sy - oy, sx - ox), spread = Math.atan2(R * 0.92, dist);   // the beam from the lamp
+      var g = ctx.createLinearGradient(ox, oy, sx, sy); g.addColorStop(0, "rgba(255,255,255,.16)"); g.addColorStop(1, "rgba(255,255,255,.05)");
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.arc(ox, oy, dist + R, ang - spread, ang + spread); ctx.closePath(); ctx.fill();
+      var pool = ctx.createRadialGradient(sx, sy, 0, sx, sy, R); pool.addColorStop(0, "rgba(255,255,255,.2)"); pool.addColorStop(1, "rgba(255,255,255,0)");
+      ctx.fillStyle = pool; ctx.beginPath(); ctx.arc(sx, sy, R, 0, 6.2832); ctx.fill();
+      lines.forEach(function (el, j) {                 // where the light lands, something true appears, and stays
+        var c = centre(el), lit = clamp(1 - Math.hypot(c[0] - sx, c[1] - sy) / (R * 1.05), 0, 1);
+        if (lit > 0.35) found[j] = 1;
+        el.style.opacity = Math.max(found[j] ? 0.42 : 0.07, lit).toFixed(3);
+      });
+      if (hint) hint.style.opacity = prog > 0.04 ? 0 : 0.7;
+    });
+  };
+  // Home: the explanation reads in, line by line, as it arrives (the handoff from the declaration)
+  var explain = function (root, gsap) {
+    if (FL.reduced) return;
+    $$("[data-lines]", root).forEach(function (p) { gsap.fromTo(p, { opacity: 0.12 }, { opacity: 1, ease: "none", scrollTrigger: { trigger: p, start: "top 88%", end: "top 52%", scrub: 0.5 } }); });
+  };
+  // Home: the gatherings as ONE quiet line (the full detail lives on Gatherings)
+  var nextLine = function (root) {
+    var b = FL.upcoming(1, 8)[0]; if (!b) return;
+    $(".nl__what", root).textContent = b.title;
+    $(".nl__when", root).textContent = (b.start.toDateString() === new Date().toDateString() ? "today" : b.start.toLocaleDateString("en-US", { weekday: "long" })) + ", " + b.start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    $(".nl__where", root).textContent = b.where;
+  };

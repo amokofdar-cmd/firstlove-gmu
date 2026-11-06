@@ -1,0 +1,81 @@
+.fl .poster.p4 { background: var(--red); color: #fff; }
+.fl .poster.p4 .t-prose { color: rgba(255,255,255,.9); } .fl .poster.p4 .t-spec .sep { color: #fff; } .fl .poster.p4 .mono-link { color: #fff; }
+.fl .next { border-top-color: var(--red); }
+.fl .msg__play { background: var(--red); border-color: var(--red); }
+.fl .group .state { color: var(--ink-2); } .fl .group .state.full { color: #fff; background: var(--red); justify-self: start; padding: .3rem .5rem; }
+
+/* red page head (Contact: red-and-white, Revision 23) */
+.fl .phead.red-block h1 { color: #fff; }
+.fl .phead.red-block p.t-prose { color: rgba(255,255,255,.9); }
+
+/* ---------- pictures inside the writing (Revision 23): a B/W photograph fills the letters ---------- */
+.fl .photo-type { background-size: cover; background-position: center; -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* ---------- scroll effects, varied per page (Revision 23) ---------- */
+.fl .fx-grow, .fl .fx-shrink { will-change: transform, border-radius; transform-origin: 50% 50%; overflow: hidden; }
+.fl .fx-grow img, .fl .fx-shrink img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fl .expand__pin { position: relative; height: 100svh; overflow: hidden; display: grid; place-items: center; background: var(--paper); }
+.fl .expand__img { position: absolute; left: 50%; top: 50%; width: 100vw; height: 100svh; transform: translate(-50%, -50%); clip-path: inset(32% 34% 32% 34%); will-change: clip-path; }
+.fl .expand__img img { width: 100%; height: 100%; object-fit: cover; }
+.fl .expand__say { position: relative; z-index: 2; color: #fff; text-align: center; opacity: 0; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .92; font-size: clamp(2.5rem, 8vw, 7rem); padding: 0 var(--gutter); }
+.fl .expand__say .red { color: var(--red); }
+.fl .expand__kick { position: absolute; z-index: 2; left: var(--gutter); top: clamp(4.5rem, 10vh, 6rem); }
+.fl .drift { overflow: hidden; padding-block: clamp(2rem, 5vw, 3.5rem); }
+.fl .drift__row { display: flex; gap: clamp(.75rem, 1.5vw, 1.25rem); width: max-content; will-change: transform; }
+.fl .drift__row figure { margin: 0; width: clamp(14rem, 26vw, 22rem); aspect-ratio: 4 / 5; overflow: hidden; border-radius: 2px; flex: none; }
+.fl .drift__row figure:nth-child(3n) { aspect-ratio: 16 / 10; width: clamp(18rem, 34vw, 28rem); align-self: center; }
+.fl .drift__row img { width: 100%; height: 100%; object-fit: cover; }
+.fl .placeholder-note { font: 500 .6875rem/1.4 var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); }
+
+/* ---------- the manifesto (Revision 23 keep): words brighten on a solid red ground ---------- */
+.fl .manifesto__pin { min-height: 100svh; display: grid; align-content: center; padding: 4rem var(--gutter); }
+.fl .manifesto__text { font-family: var(--f-display); font-weight: 800; font-variation-settings: "wdth" 100; letter-spacing: -.025em; line-height: 1.05; font-size: clamp(2.2rem, 6.4vw, 6rem); max-width: 17ch; }
+.fl .manifesto__text .w { opacity: .28; transition: opacity .15s linear; }
+@media (prefers-reduced-motion: reduce) { .fl .manifesto__text .w { opacity: 1; } }
+
+/* ---------- Known by Name = frame 13, literally (Revision 24) ---------- */
+.fl .wall { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(2.6rem, 4.6vw, 3.6rem) clamp(.75rem, 1.8vw, 1.5rem); margin-top: clamp(2.5rem, 6vw, 4rem); padding-inline: clamp(0rem, 3vw, 2rem); }
+@media (max-width: 47.99rem) { .fl .wall { grid-template-columns: repeat(3, 1fr); } }
+.fl .wall__p { position: relative; margin: 0; }
+.fl .wall__p .ph { aspect-ratio: 4 / 5; overflow: hidden; background: #E6E6E6; }
+.fl .wall__p .ph img { width: 100%; height: 100%; object-fit: cover; }
+.fl .wall__p:nth-child(4n+2) { transform: translateY(1.75rem); } .fl .wall__p:nth-child(4n+4) { transform: translateY(.9rem); }
+/* the handwritten first name sits beside the face and points to it */
+.fl .wall__name { position: absolute; z-index: 2; display: flex; align-items: center; gap: .15rem; font-family: "Caveat", "Bradley Hand", cursive; font-weight: 600; color: var(--ink);
+  font-size: clamp(1.3rem, 2.3vw, 2rem); line-height: 1; white-space: nowrap; }
+.fl .wall__name svg { width: clamp(1.6rem, 2.6vw, 2.2rem); height: auto; flex: none; }
+.fl .wall__name svg path { fill: none; stroke: var(--red); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+/* the arrow is drawn pointing down-left; each corner flips it so it always points from the name to the face */
+.fl .wall__name.tr { top: -.9em; right: -.4em; transform: rotate(-4deg); }
+.fl .wall__name.tl { top: -.9em; left: -.4em; transform: rotate(4deg); flex-direction: row-reverse; } .fl .wall__name.tl svg { transform: scaleX(-1); }
+.fl .wall__name.br { bottom: -1.05em; right: -.3em; transform: rotate(-3deg); } .fl .wall__name.br svg { transform: scaleY(-1); }
+.fl .wall__name.bl { bottom: -1.05em; left: -.3em; transform: rotate(3deg); flex-direction: row-reverse; } .fl .wall__name.bl svg { transform: scale(-1, -1); }
+.fl .care { display: grid; gap: 1.25rem; margin-top: clamp(4rem, 9vw, 6.5rem); max-width: 46rem; }
+.fl .care h3 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .95; font-size: clamp(1.75rem, 4.4vw, 3.5rem); }
+@media (max-width: 47.99rem) { .fl .wall__name { font-size: 1.15rem; } .fl .wall__name svg { width: 1.2rem; } }
+/* prayer on red: white fields, white words */
+.fl .red-block .shead .t-prose { color: rgba(255,255,255,.9); }
+.fl .red-block .field label { color: rgba(255,255,255,.85); }
+.fl .red-block .field input, .fl .red-block .field textarea { border-color: #fff; }
+.fl .red-block .send { background: #fff; color: var(--red); }
+.fl .red-block .pray__done { color: #fff; }
+.fl .phead.red-block { padding-bottom: clamp(3.5rem, 8vw, 6rem); }
+.fl .poster__title.photo-type span { -webkit-text-stroke: 0; }
+/* outlined poster words need an explicit stroke colour (their own colour is transparent) */
+.fl .poster__title .o { -webkit-text-stroke: 2px #fff; }
+.fl .poster.p1 .poster__title .o { -webkit-text-stroke-color: var(--ink); }
+
+/* =====================================================================
+   Revision 26
+   ===================================================================== */
+/* ---------- Known by Name = frame 13: a scattered, overlapping wall of snapshots, names beside specific faces ---------- */
+.fl .kbn__pin { position: relative; min-height: 100svh; display: grid; align-content: center; gap: clamp(1.5rem, 4vh, 2.5rem); padding-block: clamp(4.5rem, 10vh, 6rem) 2rem; background: var(--paper); }
+.fl .kbn__head { text-align: center; }
+.fl .kbn__head h2 { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .92; font-size: clamp(2.4rem, 7vw, 6rem); }
+.fl .kbn__view { container-type: inline-size; position: relative; width: min(100% - 2 * var(--gutter), 92rem); margin-inline: auto; aspect-ratio: 1459 / 573; overflow: hidden; }
+.fl .kbn__wall { position: absolute; inset: 0; transform-origin: 0 0; will-change: transform; }
+.fl .kbn__t { position: absolute; overflow: hidden; background: #DADADA; box-shadow: 0 1px 2px rgba(0,0,0,.22); }
+.fl .kbn__t img { width: 100%; height: 100%; object-fit: cover; }
+
+.fl .kbn__n { position: absolute; z-index: 2; font-family: "Caveat", "Bradley Hand", cursive; font-weight: 600; font-size: 2.2cqi; line-height: 1; color: var(--ink); transform: translateY(-50%) rotate(-4deg); white-space: nowrap; }
+.fl .kbn__care { text-align: center; display: grid; justify-items: center; gap: 1rem; }

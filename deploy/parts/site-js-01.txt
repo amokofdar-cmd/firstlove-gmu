@@ -1,0 +1,130 @@
+<!-- First Love Church at GMU: Website Custom JavaScript. Paste this whole file into Mason 360's Website Custom JavaScript field. -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.3.15/dist/lenis.min.js"></script>
+<script>
+/* =====================================================================
+   First Love Church at GMU · v2 exploration · SHARED RUNTIME
+   Phase 2 channel: Website Custom JavaScript (wrapped in <script> there).
+   Holds: the ONE config block, library loaders, the WebGL flame shader,
+   the ember field, and small motion utilities every component shares.
+   ===================================================================== */
+(function () {
+  "use strict";
+  var FL = (window.FL = window.FL || {});
+
+  /* ---------- the ONE config block: every placeholder lives here ---------- */
+  FL.config = {
+    service: { day: "[SERVICE DAY]", time: "[TIME]", place: "[PLACE]" },
+    gatherings: [
+      { key: "bible", title: "Bible Study", day: "Sundays", time: "1:00–2:00 PM", place: "Lecture Hall Building, Room 2",
+        plain: "We open the Bible together, read it slowly, and talk about what it says." },
+      { key: "ready", title: "READY@20", day: "Wednesdays", time: "7:00–8:30 PM", place: "The Hub, Rooms 3–5",
+        plain: "Midweek: prayer, the Word, and learning to tell people about Jesus." }
+    ],
+    links: {
+      groupChat: null,                                   // NEEDED FROM KOFI
+      instagram: "https://www.instagram.com/firstlovegmu/",
+      email: "mailto:firstlovegmu@gmail.com",           // assumed, Kofi to confirm
+      youtube: null,                                     // channel or latest message URL, NEEDED
+      mason360Events: "https://mason360.gmu.edu/FirstLove/events/",
+      directions: "https://www.google.com/maps/search/?api=1&query=George+Mason+University+Fairfax+VA",
+      dagbooks: "https://www.dagbooks.org/"
+    },
+    email: "firstlovegmu@gmail.com",
+    handle: "@firstlovegmu",
+    greeter: "[GREETER NAME]",
+    visitLength: "[LENGTH]",
+    entrance: "[WHICH DOOR, WHICH ROOM]",
+    latest: { title: "[LATEST MESSAGE TITLE]", speaker: "[SPEAKER]", series: "[SERIES]", date: "[DATE]" }
+  };
+
+  /* asset base: components live in explore/c/, logos in /logos/web */
+  FL.asset = function (name) { return (FL.base || "https://firstlove-gmu-preview.netlify.app/logos/web/") + name; };
+
+  FL.reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  FL.coarse = matchMedia("(pointer: coarse)").matches;
+  FL.small = function () { return innerWidth < 768; };
+
+  FL.ready = function (fn) { if (document.readyState !== "loading") fn(); else document.addEventListener("DOMContentLoaded", fn); };
+
+  var loaded = {};
+  FL.loadScript = function (src) {
+    if (!loaded[src]) loaded[src] = new Promise(function (res, rej) {
+      var s = document.createElement("script"); s.src = src; s.async = false; s.onload = res; s.onerror = rej; document.head.appendChild(s);
+    });
+    return loaded[src];
+  };
+  FL.gsap = function () {
+    // the built site ships GSAP self-hosted (Revision 33); only the exploration pages still fetch it
+    if (window.gsap && window.ScrollTrigger) { window.gsap.registerPlugin(window.ScrollTrigger); return Promise.resolve(window.gsap); }
+    return FL.loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js")
+      .then(function () { return FL.loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"); })
+      .then(function () { window.gsap.registerPlugin(window.ScrollTrigger); return window.gsap; });
+  };
+  /* GSAP's former bonus plugins (MorphSVG, DrawSVG...) are free and on cdnjs since 3.13 */
+  FL.gsapPlugins = function (names) {
+    return FL.gsap().then(function (gsap) {
+      return Promise.all(names.map(function (n) { return FL.loadScript("https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/" + n + ".min.js"); }))
+        .then(function () { gsap.registerPlugin.apply(gsap, names.map(function (n) { return window[n]; })); return gsap; });
+    });
+  };
+  FL.dotmatter = function () {
+    return Promise.all([
+      import("https://cdn.jsdelivr.net/npm/@dotmatter/core@0.3.1/+esm"),
+      import("https://cdn.jsdelivr.net/npm/@dotmatter/shaders@0.3.1/+esm")
+    ]).then(function (m) { return { core: m[0], shaders: m[1] }; });
+  };
+  FL.img = function (src) {
+    return new Promise(function (res, rej) { var i = new Image(); i.decoding = "async"; i.onload = function () { res(i); }; i.onerror = rej; i.src = src; });
+  };
+
+  /* fill [data-fl="path"] text and [data-fl-href="links.x"] from config; null links explain themselves */
+  FL.fill = function (root) {
+    root = root || document;
+    var get = function (p) { return p.split(".").reduce(function (o, k) { return o == null ? o : o[k]; }, FL.config); };
+    root.querySelectorAll("[data-fl]").forEach(function (n) { var v = get(n.getAttribute("data-fl")); if (v != null) n.textContent = v; });
+    root.querySelectorAll("[data-fl-href]").forEach(function (a) {
+      var v = get(a.getAttribute("data-fl-href"));
+      if (v) a.href = v; else { a.href = "#"; a.setAttribute("data-pending", a.getAttribute("data-fl-href")); }
+    });
+  };
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest && e.target.closest("a[data-pending]"); if (!a) return;
+    e.preventDefault(); FL.note("This link is coming soon.");
+  });
+  FL.note = function (msg) {
+    var t = document.getElementById("fl-note");
+    if (!t) { t = document.createElement("div"); t.id = "fl-note"; t.setAttribute("role", "status");
+      t.style.cssText = "position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:2000;background:#15110E;color:#F2ECE2;font:500 13px/1.4 'IBM Plex Mono',monospace;padding:10px 14px;border-radius:8px;opacity:0;transition:opacity .2s";
+      document.body.appendChild(t); }
+    t.textContent = msg; t.style.opacity = 1; clearTimeout(t._h); t._h = setTimeout(function () { t.style.opacity = 0; }, 2400);
+  };
+
+  /* in-view observer (kept referenced so it is never garbage-collected) */
+  FL._ios = [];
+  FL.inView = function (el, cb, opts) {
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { cb(e.isIntersecting, e); }); }, opts || { threshold: 0 });
+    io.observe(el); FL._ios.push(io); return io;
+  };
+  FL.reveals = function (root) {
+    (root || document).querySelectorAll(".reveal").forEach(function (el) {
+      if (FL.reduced) { el.classList.add("is-in"); return; }
+      FL.inView(el, function (on) { if (on) el.classList.add("is-in"); }, { threshold: 0, rootMargin: "0px 0px 8% 0px" });   // opens as it arrives: never a blank screen (Revision 34)
+    });
+  };
+
+  /* rAF loop that pauses offscreen and in hidden tabs */
+  FL.loop = function (el, fn) {
+    var on = true, vis = true, id = 0, t0 = performance.now();
+    var tick = function (now) { fn((now - t0) / 1000); if (on && vis && !document.hidden) id = requestAnimationFrame(tick); };
+    var resume = function () { cancelAnimationFrame(id); if (on && vis && !document.hidden) id = requestAnimationFrame(tick); };
+    FL.inView(el, function (v) { vis = v; resume(); });
+    document.addEventListener("visibilitychange", resume);
+    resume();
+    return { stop: function () { on = false; cancelAnimationFrame(id); }, once: function () { fn((performance.now() - t0) / 1000); } };
+  };
+
+  /* pointer tracker in element-normalized coordinates (0..1), touch-aware */
+  FL.pointer = function (el) {
+    var p = { x: 0.5, y: 0.5, px: 0, py: 0, active: false };

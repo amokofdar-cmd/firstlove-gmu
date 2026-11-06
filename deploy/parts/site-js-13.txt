@@ -1,0 +1,98 @@
+  // a photo band: the chapter break between type chambers, always moving while it is on screen
+  var band = function (root, gsap) {
+    var img = $("img", root); if (FL.reduced || !img) return;
+    gsap.fromTo(img, { yPercent: -11, scale: 1.3 }, { yPercent: 11, scale: 1.26, ease: "none", scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: true } });
+  };
+  // Revision 57: the photos float. Every photograph on every page travels with the scroll while it is on screen: the
+  // picture slides inside its frame (the frame crops it, nothing alters it), the frames that stand beside text travel
+  // at their own pace, and a slow drift keeps each one alive between scrolls. Nothing sits static.
+  var floats = function (gsap) {
+    if (FL.reduced) return;
+    var small = innerWidth < 768, ST = window.ScrollTrigger;
+    var idle = function (el, trig, ax) {                   // the slow drift, paused while the photo is off screen
+      var tw = gsap.fromTo(el, { xPercent: -ax }, { xPercent: ax, duration: 4.5 + Math.random() * 2.5, ease: "sine.inOut", repeat: -1, yoyo: true, paused: true });
+      tw.progress(Math.random());
+      ST.create({ trigger: trig, start: "top bottom", end: "bottom top", onToggle: function (st) { st.isActive ? tw.play() : tw.pause(); } });
+    };
+    var inner = function (img, trig, range, ax) {         // the picture travels inside its frame against the scroll
+      gsap.set(img, { scale: 1 + (range + ax) / 50 + 0.02, force3D: true });
+      gsap.fromTo(img, { yPercent: -range }, { yPercent: range, ease: "none", scrollTrigger: { trigger: trig, start: "top bottom", end: "bottom top", scrub: true } });
+      idle(img, trig, ax);
+    };
+    $$(".duo__ph").forEach(function (f) {
+      var img = $("img", f), sticky = getComputedStyle(f).position === "sticky";
+      inner(img, sticky ? f.closest(".duo") : f, sticky ? 9 : 9, 2.2);
+      if (!sticky) gsap.fromTo(f, { y: small ? 26 : 90 }, { y: small ? -26 : -90, ease: "none", scrollTrigger: { trigger: f, start: "top bottom", end: "bottom top", scrub: true } });
+    });
+    $$(".pband, .poster__ph").forEach(function (f) { inner($("img", f), f, 8, 1.6); });
+    $$(".op__ph").forEach(function (f) {
+      inner($("img", f), f, 9, 2.2);
+      if (!small) gsap.fromTo(f, { y: -30 }, { y: 150, ease: "none", scrollTrigger: { trigger: f.closest("section"), start: "top top", end: "bottom top", scrub: true } });
+    });
+    $$("[data-sec='band'] .band__in img").forEach(function (img) { idle(img, img.closest("section"), 1.6); });
+    $$(".band--full img").forEach(function (img) {         // the About hero stays whole: it floats down through its own space
+      var sec = img.closest("section"); sec.style.paddingBottom = small ? "8svh" : "16svh";
+      gsap.fromTo(img, { y: 0 }, { y: function () { return parseFloat(getComputedStyle(sec).paddingBottom); }, ease: "none", scrollTrigger: { trigger: sec, start: "top bottom", end: "bottom top", scrub: true, invalidateOnRefresh: true } });
+    });
+    $$(".poster__title.photo-type").forEach(function (t) {  // the photograph inside the type pans with the scroll
+      gsap.fromTo(t, { backgroundPosition: "50% 20%" }, { backgroundPosition: "50% 80%", ease: "none", scrollTrigger: { trigger: t, start: "top bottom", end: "bottom top", scrub: true } });
+    });
+  };
+  // Gatherings: nothing just sits there (Revision 36.5). Each piece is tied to the scroll while it is on screen.
+  var gatheringsFlow = function (gsap) {          // Revision 41.5: upright, inside their own space; nothing travels over text
+    if (FL.reduced) return;
+    $$("[data-sec='posters'] .poster").forEach(function (p) {
+      gsap.fromTo(p, { y: 16 }, { y: 0, duration: 0.7, ease: "power2.out", scrollTrigger: { trigger: p, start: "top 92%", once: true } });   // no fade: a red card fading passes through pink (Revision 41.4d)
+    });
+  };
+  // a link to a place on a page lands there once the pins have settled (Plan your visit lands inside the visit movement)
+  var landOnHash = function () {
+    var id = location.hash; if (id.length < 2 || !$(id)) return;
+    var go = function () { window.ScrollTrigger.refresh(); var y = $(id).getBoundingClientRect().top + scrollY - 70; if (FL.lenis) FL.lenis.scrollTo(y, { immediate: true, force: true }); else scrollTo(0, y); };
+    setTimeout(go, 600); addEventListener("load", function () { setTimeout(go, 300); });
+  };
+
+  /* ---------- small pieces ---------- */
+  var message = function (root) {
+    var art = $(".msg__art", root); if (!art) return;
+    art.addEventListener("click", function () {
+      var url = FL.config.links.youtube, m = url && url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
+      if (!m) { return; }
+      var f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + m[1] + "?autoplay=1"; f.allow = "autoplay; encrypted-media; picture-in-picture"; f.allowFullscreen = true; f.title = "Latest message"; art.appendChild(f);
+    });
+  };
+  var forms = function () { $$("form.form:not([data-seats])").forEach(function (f) { f.addEventListener("submit", function (e) { e.preventDefault(); f.classList.add("is-sent"); }); }); };
+  var fork = function (root) {
+    var out = $(".fork-ans", root), btns = $$(".fork button", root);
+    btns.forEach(function (b) { b.addEventListener("click", function () {
+      btns.forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+      out.innerHTML = "<p>" + b.getAttribute("data-say") + "</p>";
+      var next = $(b.getAttribute("data-next")); if (next) setTimeout(function () { next.scrollIntoView({ behavior: FL.reduced ? "auto" : "smooth", block: "start" }); }, 900);
+    }); });
+  };
+  var footFit = function () {
+    $$(".foot__word").forEach(function (word) {
+      var lines = $$("span", word);
+      var fit = function () { word.style.fontSize = "100px"; var widest = Math.max.apply(null, lines.map(function (l) { return l.scrollWidth; })); word.style.fontSize = (100 * word.clientWidth / widest).toFixed(2) + "px"; };
+      (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit); addEventListener("resize", fit);
+    });
+  };
+  var invitation = function (root) { FL.embers($("canvas", root), { pointerEl: root, max: 420, sparse: 2.4, speed: 0.6 }); };   // Revision 36.8: the line and the embers only, quieter
+  var pagehead = function (root, gsap) {     // inner-page titles: a feathered wipe across whole words (Revision 37.9)
+    var h = $("h1", root); if (!h || FL.reduced) return;
+    var words = []; h.childNodes.forEach(function (n) { var red = n.nodeType === 1 && n.classList.contains("red"); (n.textContent || "").trim().split(/\s+/).filter(Boolean).forEach(function (w) { words.push([w, red]); }); });
+    h.innerHTML = words.map(function (w) { return '<span class="w' + (w[1] ? " red" : "") + '">' + w[0] + "</span>"; }).join(" ");
+    softWipe($$(".w", h), gsap, { delay: 0.15, stagger: 0.12, duration: 0.9 });
+  };
+
+  /* ---------- smooth scroll (Revision 33): self-hosted Lenis 1.3.15, configured like 2819 (duration 1.2, native touch),
+     driven by GSAP's ticker so every ScrollTrigger reads the same scroll. If it does not engage, say so LOUDLY. ---------- */
+  var smooth = function (gsap) {
+    var q = location.search;
+    FL.smooth = { engaged: false, reason: "" };
+    if (FL.reduced) { FL.smooth.reason = "reduced motion: native scroll by design"; return; }
+    if (/[?&](p|t|shot)=/.test(q)) { FL.smooth.reason = "storyboard capture: native scroll by design"; return; }
+    if (!window.Lenis) { FL.smooth.reason = "Lenis script missing"; console.error("[First Love] SMOOTH SCROLL DID NOT ENGAGE: vendor/lenis.min.js did not load."); return; }
+    try {
+      var lenis = new window.Lenis({ duration: 1.2, smoothWheel: true, syncTouch: false, autoRaf: false, anchors: { offset: -60 } });
+      lenis.on("scroll", window.ScrollTrigger.update);

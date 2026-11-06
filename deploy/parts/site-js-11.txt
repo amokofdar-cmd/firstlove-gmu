@@ -1,0 +1,82 @@
+    if (window.ScrollTrigger) window.ScrollTrigger.create({ trigger: root, start: "top bottom", end: "bottom top", onUpdate: function (st) { s0 = st.progress; } });
+    FL.loop(root, function () { if (!FL.reduced) x -= 0.04; var w = row.scrollWidth / 2; var tx = ((x - s0 * 30) % (w / innerWidth * 100)); row.style.transform = "translate3d(" + tx.toFixed(2) + "vw,0,0)"; });
+  };
+  var manifesto = function () {};                  // Revision 41.4c: solid white on solid red from the first frame; nothing to animate
+
+
+  /* ---------- Known by Name (frame 13): the scroll travels INTO the wall and back out; the wall is the settled state ---------- */
+  /* ---------- Known by Name (Revisions 27-28): portraits come in from scattered places and GATHER into the cross;
+     once it stands, the line lands beneath it; then the page continues. Gather -> cross -> the words -> continue. ---------- */
+  var kbn = function (root, gsap) {
+    // Kofi, 2026-11-04: faces must never arrive empty. Fetch and decode all of them as soon as the intro is done (or at once)
+    var ready = function () { $$(".kbn__t img", root).forEach(function (im) { im.loading = "eager"; im.decoding = "sync"; if (im.decode) im.decode().catch(function () {}); }); };
+    if ($(".ent") && !FL.introDone) addEventListener("fl:intro-done", ready, { once: true }); else ready();
+    var view = $(".kbn__view", root), tiles = $$(".kbn__t", root), names = $$(".kbn__n", root), care = $(".kbn__care", root);
+    if (FL.reduced) return;
+    var rnd = seeded(28);
+    var scatter = tiles.map(function () {                       // every face starts somewhere different around the stage
+      var a = rnd() * Math.PI * 2, d = 0.45 + rnd() * 0.55;      // scattered across the stage, still on screen, so you see them come in
+      return { x: Math.cos(a) * d * innerWidth * 0.48, y: Math.sin(a) * d * innerHeight * 0.4, r: (rnd() - 0.5) * 50, s: 0.55 + rnd() * 0.45 };
+    });
+    tiles.forEach(function (t, i) { gsap.set(t, { x: scatter[i].x, y: scatter[i].y, rotation: scatter[i].r, scale: scatter[i].s, opacity: 0.9 }); });
+    gsap.set(names, { opacity: 0 }); gsap.set(care, { opacity: 0, y: 40 });
+    var order = tiles.map(function (t, i) { return i; }).sort(function () { return rnd() - 0.5; });
+    // the gather runs continuously while the section rises into view, every face moving at once on its own curve,
+    // and lands exactly as the section pins (Revision 35: no stagnant scattered plateau, no sudden final arrange)
+    var g = gsap.timeline({ scrollTrigger: { trigger: $(".kbn__pin", root), start: "top 95%", end: "top top", scrub: true } });   // 1:1 with the scroll
+    order.forEach(function (i, k) { g.to(tiles[i], { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, duration: 1, ease: "power2.inOut" }, k * (0.6 / order.length)); });
+    // Revision 40: no camera tour. The cross stands, the names resolve, the line lands, the section hands off (pin: one viewport)
+    var tl = gsap.timeline({ scrollTrigger: { trigger: $(".kbn__pin", root), start: "top top", end: "+=100%", pin: true, scrub: true, invalidateOnRefresh: true } });
+    tl.to(names, { opacity: 1, duration: 0.35, stagger: 0.08 }, 0)
+      .to(care, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, 0.25)
+      .to({}, { duration: 0.35 });
+  };
+
+  /* ---------- the picture becomes the writing (Revision 26 invention): a photograph shrinks into the letters ---------- */
+  var maskZoom = function (root, gsap) {          // opens on the whole photograph, which then gathers into the letters: never an empty screen (Revision 34)
+    var word = $(".mz__word", root), full = $(".mz__full", root); if (FL.reduced) { if (full) full.style.display = "none"; return; }
+    var tl = gsap.timeline({ scrollTrigger: { trigger: $(".mz__pin", root), start: "top top", end: root.classList.contains("mz--band") ? "+=110%" : "+=200%", pin: true, scrub: 0.7 } });   // as a band it is a chapter break, short
+    tl.fromTo(word, { scale: 2.6 }, { scale: 1, ease: "power2.inOut", duration: 1 }, 0);
+    if (full) tl.fromTo(full, { opacity: 1, scale: 1.08 }, { opacity: 0, scale: 1, ease: "power1.inOut", duration: 0.5 }, 0.12);
+  };
+
+
+
+  /* ---------- Revision 31: one primary behaviour per section, no effect repeated down a page ---------- */
+  var assemble = function (h, gsap) {             // the hero title: each word rises out of its own mask, so no two words ever cross;
+    if (FL.reduced) return;                         // the sentence and the scripture wait until the title stands (Revision 34)
+    h.innerHTML = h.textContent.trim().split(/\s+/).map(function (w) { return '<span class="wm"><span class="w">' + w + "</span></span>"; }).join(" ");
+    var after = $$(".mission__say, .mission__scripture, .mission__spec", h.parentElement);
+    after.forEach(function (el) { el.classList.remove("reveal"); });
+    gsap.set($$(".w", h), { yPercent: 115 }); gsap.set(after, { opacity: 0, clipPath: "inset(0% 0% 100% 0%)" });
+    var play = function () {
+      gsap.timeline()
+        .to($$(".w", h), { yPercent: 0, duration: 1.05, stagger: 0.13, ease: "expo.out" })
+        .to(after, { opacity: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 0.8, stagger: 0.15, ease: "power2.out" }, "-=0.35");
+    };
+    var go = function () { window.ScrollTrigger.create({ trigger: h, start: "top 88%", once: true, onEnter: play }); };
+    if ($(".ent") && !FL.introDone) addEventListener("fl:intro-done", function () { setTimeout(go, 150); }, { once: true }); else go();
+  };
+
+  var msgReveal = function (root, gsap) {          // the latest message wipes up into view like a release card
+    var art = $(".msg__art", root); if (!art || FL.reduced) return;
+    gsap.fromTo(art, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "none", scrollTrigger: { trigger: art, start: "top 92%", end: "top 45%", scrub: 0.6 } });
+    gsap.fromTo($(".t-poster", art), { yPercent: 40 }, { yPercent: 0, ease: "none", scrollTrigger: { trigger: art, start: "top 92%", end: "top 40%", scrub: 0.6 } });
+  };
+  var valuesIn = function (list, gsap) {           // Revision 41.4b: each value fades up inside its own row as it arrives
+    if (FL.reduced) return;
+    $$("li", list).forEach(function (li) {
+      gsap.fromTo(li, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out", scrollTrigger: { trigger: li, start: "top 88%", once: true } });
+    });
+  };
+  var beliefsIn = function () {};                   // Revision 41.4a: the beliefs are a stacked list and simply read; nothing runs across them
+  var calendar = function (root, gsap) {          // Gatherings: the next weeks, from the one schedule
+    var list = $(".cal__list", root), MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var items = FL.upcoming(6, 28).map(function (u) { return { d: u.start, g: { t: u.title, where: u.where } }; });
+    list.innerHTML = items.slice(0, 6).map(function (it) {
+      return '<li class="cal__row"><span class="cal__date"><b>' + DOW[it.d.getDay()] + "</b><strong>" + it.d.getDate() + "</strong><em>" + MON[it.d.getMonth()] + '</em></span><span class="cal__what"><strong>' + it.g.t +
+        '</strong><span class="t-spec">' + it.d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + '<span class="sep">//</span>' + it.g.where + '</span></span><a class="mono-link" data-fl-href="links.mason360Events" href="#">RSVP</a></li>';
+    }).join("");
+    FL.fill(list);
+    if (FL.reduced) return;
+    $$(".cal__row", list).forEach(function (row, i) {     // each date slides in with the scroll and keeps travelling while on screen (Revision 36.5)

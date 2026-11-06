@@ -1,0 +1,41 @@
+        <blockquote><p class="t-scripture">But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the earth.</p><p class="t-ref">Acts 1:8</p></blockquote></div>
+      <div class="belief"><div><h3>The Church</h3><p class="t-prose">The church belongs to Jesus. He builds it, and he sends it into the whole world.</p></div>
+        <blockquote><p class="t-scripture">And I say also unto thee, That thou art Peter, and upon this rock I will build my church; and the gates of hell shall not prevail against it.</p><p class="t-ref">Matthew 16:18</p></blockquote></div>
+    </div>
+    <p class="beliefs__stop">This is the good news we were given, and the good news we tell.</p>
+  </div><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5596.jpg" alt="" loading="lazy" style="object-position:50% 40%"></figure></div>
+</section>
+
+<section class="section" aria-labelledby="afaq-t" style="padding-top:0">
+  <div class="wrap duo"><div class="duo__text">
+    <div class="shead"><p class="t-kicker">Questions</p><h2 id="afaq-t">Asked often.</h2></div>
+    <div data-faq="believe,family,grads,happens"></div>
+  </div><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5656.jpg" alt="" loading="lazy" style="object-position:50% 35%"></figure></div>
+</section>
+
+<section class="pband" aria-hidden="true"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5631.jpg" alt="" loading="lazy" style="object-position:50% 45%"></section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__lock"><img class="foot__trio" src="https://firstlove-gmu-preview.netlify.app/logos/web/hearts-on-fire.png" alt="First Love Church: heart, flame and globe"></div>
+    <p class="foot__big" aria-label="First Love Church"><span>First Love</span><span class="red">Church</span></p>
+    <div class="foot__cols">
+      <div>
+        <p class="t-kicker">First Love Church at George Mason University</p>
+        <p class="foot__line">Hearts on Fire for the World</p>
+      </div>
+      <ul>
+        <li><span class="t-spec">Sun<span class="sep">//</span>Bible Study<span class="sep">//</span>1:00 PM</span></li>
+        <li><span class="t-spec">Wed<span class="sep">//</span>READY@20<span class="sep">//</span>7:00 PM</span></li>
+      </ul>
+      <ul><li><a href="https://mason360.gmu.edu/firstlove/home/#visit">Plan your visit</a></li><li><a href="https://mason360.gmu.edu/FirstLove/about/">About</a></li><li><a href="https://mason360.gmu.edu/firstlove/events/">Gatherings</a></li><li><a href="https://mason360.gmu.edu/firstlove/home/#contact">Contact</a></li></ul>
+      <ul>
+        <li><a data-fl-href="links.email" href="#" data-fl="email">firstlovegmu@gmail.com</a></li>
+        <li><a data-fl-href="links.instagram" href="#" target="_blank" rel="noopener">Instagram @firstlovegmu</a></li>
+        <li><a data-fl-href="links.mason360Events" href="#">Events and RSVPs on Mason 360</a></li>
+      </ul>
+    </div>
+    <div class="foot__base"><p class="t-ref">George Mason University, Fairfax, Virginia</p><p class="t-ref">Map data © OpenStreetMap contributors</p></div>
+  </div>
+</footer>
+</div>

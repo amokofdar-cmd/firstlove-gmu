@@ -1,0 +1,102 @@
+<!-- First Love Church at GMU: gatherings page body. Paste into the page's text block, HTML view. -->
+<div class="fl site">
+<nav class="nav" aria-label="First Love Church">
+  <div class="nav__in">
+    <a class="nav__mark" href="https://mason360.gmu.edu/firstlove/home/"><img src="https://firstlove-gmu-preview.netlify.app/logos/web/mark-heart.png" alt="">First Love Church</a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Open the menu"><span></span><span></span><span></span></button>
+    <div class="nav__links">
+      <a href="https://mason360.gmu.edu/firstlove/home/">Home</a><a href="https://mason360.gmu.edu/FirstLove/about/">About</a><a href="https://mason360.gmu.edu/firstlove/events/">Gatherings</a><a href="https://mason360.gmu.edu/firstlove/home/#contact">Contact</a>
+      <a href="https://mason360.gmu.edu/firstlove/home/#visit">Plan your visit</a>
+    </div>
+  </div>
+</nav>
+<div class="menu" id="menu" role="dialog" aria-modal="true" aria-label="Menu" hidden>
+  <div class="menu__top">
+    <a class="menu__mark" href="https://mason360.gmu.edu/firstlove/home/">First Love <span class="red">Church</span></a>
+    <button class="menu__close" type="button" aria-label="Close the menu"><span></span><span></span></button>
+  </div>
+  <nav class="menu__links" aria-label="Pages">
+    <a href="https://mason360.gmu.edu/firstlove/home/">Home</a><a href="https://mason360.gmu.edu/FirstLove/about/">About</a><a href="https://mason360.gmu.edu/firstlove/events/">Gatherings</a><a href="https://mason360.gmu.edu/firstlove/home/#contact">Contact</a><a href="https://mason360.gmu.edu/firstlove/home/#visit">Plan your visit</a>
+  </nav>
+  <figure class="menu__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5612.jpg" alt="" loading="lazy" style="object-position:50% 35%"></figure>
+</div>
+<!-- GATHERINGS · title: Gatherings · First Love Church -->
+<!-- Revision 35/36: the sole owner of meeting detail. hero → the three gatherings → photo band → live calendar →
+     small groups → shared FAQ. Every stretch moves with the scroll; no photograph just sits there. -->
+<header class="phead" data-sec="phead">
+  <div class="wrap">
+    <p class="t-kicker">Gatherings</p>
+    <h1>When the church <span class="red">meets</span></h1>
+    <p class="t-prose">The church meets on campus every week. Here is what each gathering is, and when the next one starts.</p>
+  </div>
+</header>
+
+<section class="pband" aria-hidden="true"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5611.jpg" alt="" loading="lazy" style="object-position:50% 62%"></section>
+
+<section class="section" aria-labelledby="g-t" style="padding-top:clamp(1rem,3vw,2rem)">
+  <div class="wrap">
+    <div class="shead"><p class="t-kicker">Every week</p><h2 id="g-t">Three gatherings.</h2></div>
+    <div class="next" data-sec="next" style="margin-bottom:clamp(2.5rem,6vw,4rem)">
+      <p class="t-kicker">Next on campus</p>
+      <p class="next__what">Bible Study</p><p class="t-spec next__when">&nbsp;</p><div class="next__clock" aria-hidden="true"></div>
+    </div>
+    <div class="posters" data-sec="posters">
+      <article class="poster p3" style="grid-column:1/-1;min-height:clamp(22rem,40vw,30rem)">
+        <figure class="poster__ph" aria-hidden="true"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5622.jpg" alt="" loading="lazy" style="object-position:60% 40%"></figure>
+        <h3 class="poster__title" style="font-size:min(31cqi,12rem)"><span>The</span><span>Service</span></h3>
+        <div class="poster__info">
+          <p class="t-spec">The Hub</p>
+          <p class="t-prose">We sing, we pray, and the Word of God is preached. The whole church, together.</p>
+          <a class="mono-link" data-fl-href="links.mason360Events" href="#">RSVP on Mason 360</a>
+        </div>
+      </article>
+      <article class="poster p1">
+        <h3 class="poster__title photo-type" style="background-image:url(https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5654.jpg)"><span>Bible</span><span>Study</span></h3>
+        <div class="poster__info">
+          <p class="t-spec">Sundays<span class="sep">//</span>1:00–2:00 PM<span class="sep">//</span>Lecture Hall Building, Room 2</p>
+          <p class="t-prose">Bring the question you've never said out loud.</p>
+          <a class="mono-link" data-fl-href="links.mason360Events" href="#">RSVP on Mason 360</a>
+        </div>
+      </article>
+      <article class="poster p4">
+        <h3 class="poster__title"><span>Ready</span><span class="o">@20</span></h3>
+        <div class="poster__info">
+          <p class="t-spec">Wednesdays<span class="sep">//</span>7:00–8:30 PM<span class="sep">//</span>The Hub, Rooms 3–5</p>
+          <p class="t-prose">Midweek: prayer, the Word, and learning to tell people about Jesus.</p>
+          <a class="mono-link" data-fl-href="links.mason360Events" href="#">RSVP on Mason 360</a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="drift" data-sec="drift" aria-label="Pictures from the gatherings">
+  <div class="drift__row">
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5584.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5593.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5628.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5642.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5612.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5603.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5630.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5586.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5600.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5621.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5629.jpg" alt=""></figure>
+    <figure><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5608.jpg" alt=""></figure>
+  </div>
+</section>
+
+<section class="section" data-sec="calendar" aria-labelledby="cal-t">
+  <div class="wrap duo duo--sticky"><div class="duo__text">
+    <div class="shead"><p class="t-kicker">Calendar</p><h2 id="cal-t">The next few weeks.</h2>
+      <p class="t-prose">Every Bible Study and READY@20 from today. Retreats, outreach days and anything extra live on Mason 360.</p></div>
+    <ol class="cal__list"><li class="cal__row"><span class="cal__what"><strong>Bible Study</strong><span class="t-spec">Sundays, 1:00 PM<span class="sep">//</span>Lecture Hall Building, Room 2</span></span></li><li class="cal__row"><span class="cal__what"><strong>READY@20</strong><span class="t-spec">Wednesdays, 7:00 PM<span class="sep">//</span>The Hub, Rooms 3–5</span></span></li></ol>
+    <p style="margin-top:1.5rem"><a class="mono-link" data-fl-href="links.mason360Events" href="#">The full calendar on Mason 360</a></p>
+  </div><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5605.jpg" alt="" loading="lazy" style="object-position:50% 40%"></figure></div>
+</section>
+
+<section class="section" aria-labelledby="gfaq-t" style="padding-top:0">
+  <div class="wrap duo"><div class="duo__text">
+    <div class="shead"><p class="t-kicker">Questions</p><h2 id="gfaq-t">About gatherings.</h2></div>
+    <div data-faq="happens,people,park,lift,friends"></div>

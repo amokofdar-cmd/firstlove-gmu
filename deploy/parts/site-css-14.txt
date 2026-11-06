@@ -1,0 +1,50 @@
+.fl .menu__links { display: flex; flex-direction: column; padding: 1rem 0 1.5rem; }
+.fl .menu__links a { color: #fff; text-decoration: none; font: 800 clamp(2rem, 9.6vw, 3.75rem)/1.04 var(--f-display); text-transform: uppercase; letter-spacing: -.02em; padding: .05em 0;
+  transform: translateY(110%); opacity: 0; transition: transform .6s cubic-bezier(.2, .8, .2, 1), opacity .3s ease; }
+.fl .menu__links a[aria-current="page"] { color: var(--red); }
+.fl .menu.is-open .menu__links a { transform: none; opacity: 1; }
+.fl .menu.is-open .menu__links a:nth-child(2) { transition-delay: .05s; } .fl .menu.is-open .menu__links a:nth-child(3) { transition-delay: .1s; }
+.fl .menu.is-open .menu__links a:nth-child(4) { transition-delay: .15s; } .fl .menu.is-open .menu__links a:nth-child(5) { transition-delay: .2s; }
+.fl .menu__ph { margin: 0; flex: 1 1 14rem; min-height: 14rem; overflow: hidden; }
+.fl .menu__ph img { display: block; width: 100%; height: 100%; object-fit: cover; }
+html.menu-open, html.menu-open body { overflow: hidden; }
+@media (prefers-reduced-motion: reduce) { .fl .menu, .fl .menu__links a { transition: none; } }
+/* Revision 58: the footer wordmark is sized to its own column, not the screen, so it never runs off on a wide laptop */
+.fl .foot__big { container-type: inline-size; }
+.fl .foot__big span { font-size: 12.9cqi; }
+/* Revision 58: phone alignment. Nothing that slides in from the side may widen the page */
+.fl.site { overflow-x: clip; }
+.fl [data-sec='calendar'] { overflow-x: clip; }
+@media (max-width: 47.99rem) {
+  /* the CHURCH ON CAMPUS photo sits on the same 20px margins as the words, full width (its partner photo is gone) */
+  .fl .op__ph1 { grid-column: 1 / -1; grid-row: 3; width: auto; margin: 0 var(--gutter); }
+}
+/* Revision 58: the form follows Known by Name directly; the rest of the visit follows the form, with the same even
+   spacing between every step (no empty bands) */
+.fl .rsvp { padding-top: clamp(1.5rem, 3vw, 2.5rem); padding-bottom: 0; }
+.fl .visit--more { padding-top: 0; }
+.fl .fork-ans:empty { margin-top: 0; min-height: 0; }
+@media (max-width: 59.99rem) { .fl .kbn__pin { align-content: end; padding-bottom: 1rem; } }
+@media (max-width: 59.99rem) { .fl .rsvp .duo--form .duo__ph { order: 2; } }   /* on phone the form comes first, its photo after it: never two photos in a row */
+/* 2026-11-03 trims: prayer and contact close Home, spaced like the visit steps above them (no empty bands) */
+.fl .visit--more { padding-bottom: 0; }
+.fl .pray-sec, .fl .contact-sec { padding-top: clamp(3.5rem, 8vw, 6rem); padding-bottom: 0; }
+.fl .contact-sec { padding-bottom: clamp(4rem, 9vw, 7rem); }
+@media (max-width: 59.99rem) { .fl .pray-sec .duo--form .duo__ph { order: 2; } }   /* on phone the words first, the photo after */
+
+/* ===== Revision 59: the keep-scrolling cue. SCROLL in black Archivo, small and letterspaced, over one bold solid red
+   chevron. Its own paper plate keeps it solid and separate wherever it stands. The word never moves; the chevron nudges
+   down ~8px easing to half strength and back, every 1.8s. Static under reduced motion. ===== */
+.fl .cue { position: fixed; z-index: 40; bottom: calc(env(safe-area-inset-bottom, 0px) + .6rem); display: grid; justify-items: center; gap: .2rem;
+  padding: .45rem .55rem .95rem; background: none; pointer-events: none; opacity: 0; visibility: hidden;
+  transition: none; }   /* it leaves the instant the visitor scrolls: nothing ever slides under a fading cue */
+.fl .cue { left: 50%; translate: -50% 0; }   /* one fixed place: the foot of the screen, centred */
+.fl .cue.is-on { opacity: 1; visibility: visible; transition: opacity .35s ease, visibility 0s; }
+.fl .cue__w { font: 700 .6875rem/1 var(--f-display); text-transform: uppercase; letter-spacing: .3em; margin-right: -.3em; color: var(--ink); }
+.fl .cue__c { display: block; width: 1.75rem; height: auto; fill: none; stroke: var(--red); stroke-width: 3.4; stroke-linecap: square; stroke-linejoin: miter; overflow: visible; }
+/* "half strength" is half the weight, not half the opacity: a fading red reads pink (Revision 41.4d), so it stays solid */
+.fl .cue.is-on .cue__c { animation: fl-cue 1.8s ease-in-out infinite; }
+.fl .cue.is-on .cue__c path { animation: fl-cue-w 1.8s ease-in-out infinite; }
+@keyframes fl-cue { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+@keyframes fl-cue-w { 0%, 100% { stroke-width: 3.4; } 50% { stroke-width: 1.7; } }
+@media (prefers-reduced-motion: reduce) { .fl .cue.is-on .cue__c, .fl .cue.is-on .cue__c path { animation: none; } }

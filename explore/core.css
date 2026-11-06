@@ -1,0 +1,122 @@
+/* =====================================================================
+   First Love Church at GMU · v2 exploration · SHARED DESIGN LANGUAGE
+   Phase 2 channel: Website Custom CSS (site-wide). Every component's
+   <style data-site-css> block appends to this file in production.
+   One type system, one palette, one spacing scale, one motion grammar.
+   ===================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=IBM+Plex+Mono:wght@400;500&family=Caveat:wght@500;600&display=swap');
+
+.fl {
+  /* palette (Revisions 18-19, locked): WHITE is the ground, black everything on it, the logo's own red as the accent.
+     Neutral only: no warm paper, nothing soft. Black appears in moments (entrance, night scenes, full-bleed photos). */
+  --paper: #FFFFFF;
+  --paper-2: #F0F0F0;
+  --ink: #0B0B0B;
+  --ink-2: #555555;        /* secondary text on white (7.5:1) */
+  --night: #0B0B0B;
+  --night-2: #171717;
+  --ash: #9C9C9C;          /* secondary text on black (7.4:1) */
+  --bone: #FFFFFF;         /* primary text on black */
+  --red: #EE0408;          /* First Love red: the fire and one invitation, nowhere else */
+  --red-ink: #C40308;      /* red for small text on paper (5.9:1) */
+  --ember: #FF7A1A;        /* fire only, never UI */
+  --line: rgba(0,0,0,.14);
+  --line-night: rgba(255,255,255,.16);
+
+  /* type: BOLD graphic type only (Revision 18). Archivo for everything, with its width axis; Plex Mono for spec lines */
+  --f-display: "Archivo", system-ui, sans-serif;
+  --f-prose: "Archivo", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* spacing: 8px base, spacious */
+  --s1: .5rem; --s2: 1rem; --s3: 1.5rem; --s4: 2rem; --s5: 3rem; --s6: 4.5rem; --s7: 7rem;
+  --section: clamp(5.5rem, 13vw, 11rem);
+  --gutter: clamp(1.25rem, 4vw, 3rem);
+  --measure: 34rem;
+
+  /* motion grammar (apple-design): critically damped by default, nothing overshoots unless thrown */
+  --ease-out: cubic-bezier(.16, 1, .3, 1);                       /* expo.out: entrances */
+  --ease-spring: linear(0, .157 4.2%, .438 10%, .672 16.6%, .832 23.8%, .926 31.4%, .973 39.6%, .993 49.6%, 1);
+  --t-press: 100ms; --t-quick: 220ms; --t-enter: 900ms;
+
+  background: var(--paper); color: var(--ink);
+  font: 400 1.0625rem/1.55 var(--f-display); font-variation-settings: "wdth" 100;
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+}
+.fl *, .fl *::before, .fl *::after { box-sizing: border-box; }
+.fl :where(h1, h2, h3, h4, p, ul, ol, dl, dd, figure, blockquote) { margin: 0; padding: 0; }
+.fl :where(h1, h2, h3, h4) { font-size: inherit; font-weight: inherit; }
+.fl :where(ul, ol) { list-style: none; }
+.fl a { color: inherit; }
+.fl img, .fl canvas, .fl svg { display: block; max-width: 100%; }
+.fl .night, .fl.night { background: var(--night); color: var(--bone); }
+
+.fl .wrap { width: min(100% - 2 * var(--gutter), 72rem); margin-inline: auto; }
+.fl .bleed { width: 100vw; margin-inline: calc(50% - 50vw); }
+.fl .section { padding-block: var(--section); }
+
+/* ---------- type system ---------- */
+/* billboard: 2819 register. Wide caps, letter-spaced, the declaration voice */
+.fl .t-billboard {
+  font-family: var(--f-display); font-weight: 800; text-transform: uppercase;
+  font-variation-settings: "wdth" 125; letter-spacing: .04em; line-height: .92;
+  font-size: clamp(2.6rem, 9.2vw, 9rem);
+}
+/* display: headline voice, tight */
+.fl .t-display {
+  font-family: var(--f-display); font-weight: 760; font-variation-settings: "wdth" 92;
+  letter-spacing: -.03em; line-height: 1; font-size: clamp(2.25rem, 6vw, 5rem);
+}
+/* condensed: key-art / poster voice */
+.fl .t-poster {
+  font-family: var(--f-display); font-weight: 900; text-transform: uppercase;
+  font-variation-settings: "wdth" 62; letter-spacing: -.01em; line-height: .84;
+  font-size: clamp(4rem, 17vw, 15rem);
+}
+/* prose: the church speaking, and scripture */
+.fl .t-prose { font-family: var(--f-prose); font-weight: 450; font-size: clamp(1.0625rem, 1.5vw, 1.25rem); line-height: 1.55; max-width: var(--measure); }
+.fl .t-prose + .t-prose { margin-top: 1em; }
+.fl .t-scripture { font-family: var(--f-display); font-weight: 600; font-variation-settings: "wdth" 92; font-size: clamp(1.125rem, 1.6vw, 1.375rem); line-height: 1.4; letter-spacing: -.01em; }
+/* spec line: 2819 "//" rhythm for times and rooms */
+.fl .t-spec { font-family: var(--f-mono); font-size: clamp(.8125rem, 1.1vw, .9375rem); letter-spacing: .06em; text-transform: uppercase; line-height: 1.6; }
+.fl .t-spec .sep { color: var(--red-ink); padding-inline: .6em; }
+.fl .night .t-spec .sep, .fl.night .t-spec .sep { color: var(--red); }
+/* kicker / label */
+.fl .t-kicker { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+.fl .night .t-kicker, .fl.night .t-kicker { color: var(--ash); }
+.fl .t-ref { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.fl .night .t-ref, .fl.night .t-ref { color: var(--ash); }
+
+/* the one invitation link style: text, underlined, never a pill-button funnel */
+.fl .invite { font-family: var(--f-display); font-weight: 650; text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: .22em; text-decoration-color: var(--red); transition: text-decoration-color var(--t-quick) ease; }
+.fl .invite:hover { text-decoration-color: currentColor; }
+.fl .invite:active { opacity: .7; }
+
+.fl a:focus-visible, .fl button:focus-visible, .fl input:focus-visible, .fl [tabindex]:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; border-radius: 4px; }
+
+/* screen-reader text for canvas-only moments */
+.fl .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- motion helpers ---------- */
+.fl .reveal { opacity: 0; transform: translateY(18px); transition: opacity var(--t-enter) var(--ease-out), transform var(--t-enter) var(--ease-out); }
+.fl .reveal.is-in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .fl .reveal { opacity: 1; transform: none; transition: none; }
+  .fl *, .fl *::before, .fl *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; transition-duration: 1ms !important; }
+}
+@media (prefers-contrast: more) { .fl { --ink-2: #2E2822; --ash: #D2C8BA; --line: rgba(21,17,14,.5); } }
+
+/* =====================================================================
+   DEMO CHROME (exploration only, never shipped): label bar per component
+   ===================================================================== */
+body.x-demo { margin: 0; background: #0B0B0B; }
+.x-label {
+  position: fixed; z-index: 1000; left: 12px; top: 12px; max-width: calc(100vw - 24px);
+  display: flex; flex-wrap: wrap; gap: 2px 10px; align-items: baseline;
+  font: 500 12px/1.35 "IBM Plex Mono", ui-monospace, monospace; letter-spacing: .02em;
+  background: rgba(11,11,11,.88); color: #FFFFFF; padding: 8px 12px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.18); pointer-events: none;
+}
+.x-label b { color: #EE0408; font-weight: 500; }
+.x-label span { color: #9C9C9C; }
+body.x-shot .x-label { display: none; }

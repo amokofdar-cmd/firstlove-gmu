@@ -1,0 +1,83 @@
+      if (i < sets.length - 1) tl.to(ws, { x: function () { return (rnd() - 0.5) * innerWidth; }, y: function () { return (rnd() - 0.5) * innerHeight * 0.6; }, rotation: function () { return (rnd() - 0.5) * 30; }, opacity: 0, duration: 0.8, stagger: { each: 0.03, from: "random" }, ease: "power2.in" });
+    });
+  };
+
+  /* ---------- dorms at night: many students, many rooms; windows keep flickering (alive) ---------- */
+  var dorms = function (root, gsap) {
+    var host = $(".dorms__sky", root), rnd = seeded(11), W = 1600, H = 700;
+    var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H, preserveAspectRatio: "xMidYMax meet" }, host);
+    var far = svgEl("g", {}, svg), near = svgEl("g", {}, svg), lits = [];
+    var block = function (g, x, w, h, cls, depth) {
+      svgEl("rect", { x: x, y: H - h, width: w, height: h, class: "bldg " + cls }, g);
+      var cols = Math.floor((w - 24) / 26), rows = Math.floor((h - 40) / 34);
+      for (var c = 0; c < cols; c++) for (var r = 0; r < rows; r++) {
+        var wx = x + 14 + c * 26 + (w - 24 - cols * 26) / 2, wy = H - h + 22 + r * 34;
+        svgEl("rect", { x: wx, y: wy, width: 13, height: 19, rx: 1.5, class: "win" }, g);
+        var l = svgEl("rect", { x: wx, y: wy, width: 13, height: 19, rx: 1.5, class: "lit" }, g); lits.push({ el: l, k: rnd(), depth: depth });
+      }
+    };
+    var x = -40; while (x < W) { var w = 160 + rnd() * 160; block(far, x, w, 260 + rnd() * 160, "far", 0.5); x += w + 30 + rnd() * 60; }
+    x = -20; while (x < W) { var w2 = 210 + rnd() * 190; block(near, x, w2, 300 + rnd() * 230, "", 1); x += w2 + 60 + rnd() * 90; }
+    lits.sort(function (a, b) { return a.k - b.k; });
+    var beats = $$(".dorms__beat", root), lit = 0.02;
+    var paint = function () { var n = Math.floor(lits.length * lit); lits.forEach(function (o, i) { o.on = i < n; }); };
+    // windows flicker on and off a little all the time: rooms are lived in
+    FL.loop(root, function (t) {
+      lits.forEach(function (o, i) { var f = o.on ? (Math.sin(t * (0.3 + o.k) + i) > -0.92 ? 1 : 0.15) : 0; o.el.style.opacity = f; });
+    });
+    if (FL.reduced) { lit = 1; paint(); return; }
+    paint();
+    var tl = gsap.timeline({ defaults: { ease: "none" }, scrollTrigger: { trigger: $(".dorms__pin", root), start: "top top", end: "+=" + (beats.length * 90) + "%", pin: true, scrub: 0.6,
+      onUpdate: function (st) { lit = 0.02 + st.progress * 0.9; paint(); } } });
+    tl.to(far, { y: -20, duration: beats.length }, 0).to(near, { y: -45, duration: beats.length }, 0);
+    tl.to({}, { duration: 0.5 }, 0);
+    for (var b = 1; b < beats.length; b++) {
+      tl.to(beats[b - 1], { opacity: 0, y: -30, duration: 0.35 }, b - 0.4).fromTo(beats[b], { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.45 }, b - 0.2);
+    }
+  };
+
+  /* ---------- campus journey on the real map (OpenStreetMap): the camera walks the route to The Hub ---------- */
+  var campus = function (root, gsap) {             // Every road leads here: six real walking routes converge on The Hub
+    var host = $(".map__svg", root), labels = $(".map__labels", root);
+    var ROADS = [["Johnson Center", "the middle of campus"], ["Fenwick Library", "where you study"], ["Lecture Hall", "where you learn", null, "left"],
+                 ["Commonwealth Hall", "where you live"], ["Liberty Square", "where you live"], ["Rappahannock Parking Deck", "where you park", "Rappahannock Deck"]];
+    fetch(root.getAttribute("data-map") || "https://firstlove-gmu-preview.netlify.app/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
+      var hub = D.hub, roads = ROADS.map(function (rd) {
+        var w = D.walks.filter(function (x) { return x.from === rd[0]; })[0]; if (!w) return null;
+        var R = w.route.slice(); if (Math.hypot(R[R.length - 1][0] - hub[0], R[R.length - 1][1] - hub[1]) > 4) R.push(hub);
+        var seg = [0]; for (var i = 1; i < R.length; i++) seg.push(seg[i - 1] + Math.hypot(R[i][0] - R[i - 1][0], R[i][1] - R[i - 1][1]));
+        return { name: rd[2] || rd[0], sub: rd[1], left: rd[3] === "left", min: w.minutes, R: R, seg: seg, len: seg[seg.length - 1] };
+      }).filter(Boolean);
+      // a still camera that holds the whole story: every road and The Hub, with room for the headline
+      var xs = [], ys = []; roads.forEach(function (r) { r.R.forEach(function (p) { xs.push(p[0]); ys.push(p[1]); }); });
+      var box0 = [Math.min.apply(null, xs), Math.min.apply(null, ys), Math.max.apply(null, xs), Math.max.apply(null, ys)];
+      var svg = svgEl("svg", { class: "map__svg-el", preserveAspectRatio: "xMidYMid meet" }, host); svg.style.width = "100%"; svg.style.height = "100%";
+      var gp = svgEl("g", {}, svg), gb = svgEl("g", {}, svg), gr = svgEl("g", {}, svg), gd = svgEl("g", {}, svg);
+      var near = function (b, x0, y0, x1, y1) { var p = b.p[0]; return p[0] > x0 && p[0] < x1 && p[1] > y0 && p[1] < y1; };
+      var pad = 260, X0 = box0[0] - pad, Y0 = box0[1] - pad, X1 = box0[2] + pad, Y1 = box0[3] + pad;
+      D.paths.forEach(function (p) { if (p.some(function (q) { return q[0] > X0 && q[0] < X1 && q[1] > Y0 && q[1] < Y1; })) svgEl("polyline", { points: p.join(" "), class: "pth" }, gp); });
+      var hubEl = null;
+      D.buildings.forEach(function (b) {
+        if (!near(b, X0, Y0, X1, Y1)) return;
+        var isHub = b.n === "The HUB", isFrom = roads.some(function (r) { return b.n && r.name.indexOf(b.n.split(" ")[0]) === 0 && Math.hypot(b.p[0][0] - r.R[0][0], b.p[0][1] - r.R[0][1]) < 160; });
+        var el = svgEl("polygon", { points: b.p.join(" "), class: "b" + (b.n ? " named" : "") + (isFrom ? " from" : "") + (isHub ? " hub" : "") }, gb);
+        if (isHub) hubEl = el;
+      });
+      roads.forEach(function (r) {
+        r.line = svgEl("polyline", { class: "road", points: "" }, gr);
+        r.origin = svgEl("circle", { class: "origin", cx: r.R[0][0], cy: r.R[0][1], r: 5 }, gd);
+        r.dot = svgEl("circle", { class: "dot", cx: r.R[0][0], cy: r.R[0][1], r: 6 }, gd);
+        var lab = document.createElement("p"); lab.className = "map__label"; lab.innerHTML = "<b>" + r.name + "<i> · " + r.min + " min</i></b><span>" + r.sub + " · " + r.min + " min</span>"; labels.appendChild(lab); r.lab = lab;
+      });
+      var end = roads[0].R[roads[0].R.length - 1], ring = svgEl("circle", { class: "ring", cx: end[0], cy: end[1], r: 0 }, gd);
+      var pin = svgEl("circle", { class: "hubpin", cx: end[0], cy: end[1], r: 0 }, gd);   // the destination: a point, where every road ends
+      var hubLab = document.createElement("p"); hubLab.className = "map__label is-hub"; hubLab.innerHTML = "<b>The Hub</b><span>where the church meets</span>"; labels.appendChild(hubLab);
+      // timing on the scroll: the roads set out one after another and all arrive before the section lets go
+      var maxLen = Math.max.apply(null, roads.map(function (r) { return r.len; }));
+      roads.forEach(function (r, i) { r.t0 = 0.03 + Math.floor(i / 2) * 0.1 + (i % 2) * 0.03; r.t1 = Math.min(0.82, r.t0 + 0.34 + 0.2 * (r.len / maxLen)); });   // Revision 40: the roads set out in overlapping pairs; all arrive by .82
+      var arriveFirst = Math.min.apply(null, roads.map(function (r) { return r.t1; })), arriveLast = Math.max.apply(null, roads.map(function (r) { return r.t1; }));
+      var vb = [0, 0, 1, 1], scale = 1;
+      var frame = function () {                        // fit the story to the screen, leaving the headline its corner
+        var rect = host.getBoundingClientRect(), small = rect.width < 768, w = box0[2] - box0[0] + 160, h = box0[3] - box0[1] + 160;
+        var cx = (box0[0] + box0[2]) / 2, cy = (box0[1] + box0[3]) / 2, aspect = rect.width / Math.max(1, rect.height);
+        if (small) { h = h / 0.62; cy -= h * 0.12; } else { w = w / 0.64; cx -= w * 0.16; h = h / 0.84; cy -= h * 0.04; }       // headline: top on a phone, left on a laptop; headroom under the nav

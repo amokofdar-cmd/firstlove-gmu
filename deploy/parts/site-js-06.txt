@@ -1,0 +1,88 @@
+        pen({ s: lerp(ca.s, cb.s, kc), cx: lerp(ca.cx, cb.cx, kc), cy: lerp(ca.cy, cb.cy, kc) });
+        var g = [gS[0] * (1 - k), gS[1] * (1 - k)];
+        marks.globe.strokes.forEach(function (st) { line(moved(st.pts, g), 1); });
+        marks.heart.strokes.forEach(function (st, j) { var r = outE((lp - 0.18 - j * 0.05) / 0.62); if (r > 0) line(st.pts, r); });
+        marks.flame.strokes.slice().sort(function (a, b) { return b.len - a.len; }).forEach(function (st, j) { var r = outE((lp - 0.3 - j * 0.07) / 0.6); if (r > 0) line(st.pts, r); });
+      };
+      var render = function (t) {
+        var pl = plan[0]; plan.forEach(function (x) { if (t >= x.hold) pl = x; });
+        var seg = pl.sg, lp = clamp((t - pl.a) / TRANS, 0, 1), e = ease(lp);              // holds sit on the form; each transition the same curve
+        // Revision 50, a flip book: frames advance at an even rate and each display refresh shows ONE true frame (no blending: no ghost)
+        var fi = Math.round(seg.start + lp * (seg.end - seg.start)), ff = 0;
+        var k = ease(seg.to === "trio" ? Math.min(1, lp * 2.6) : lp), a = cam(seg.from), b = cam(seg.to);   // pull back early for the trio, before the marks spread
+        var c = { s: lerp(a.s, b.s, k), cx: lerp(a.cx, b.cx, k), cy: lerp(a.cy, b.cy, k) };
+        ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#0D0B09"; ctx.fillRect(0, 0, cv.width, cv.height);
+        var s = c.s * dpr; ctx.setTransform(s, 0, 0, s, dpr * vw / 2 - s * c.cx, dpr * vh * 0.44 - s * c.cy);   // no breathing zoom (Revision 47: no shake)
+        ctx.imageSmoothingQuality = "high";
+        keep(fi);
+        var fr = pic(fi), nx = pic(fi + 1), fade = clamp(t / 60, 0, 1);
+        if (t >= pl.a && t < pl.b && seg.from === "heart") { heartToFlame(lp); return; }
+        if (t >= pl.a && t < pl.b && seg.from === "globe") { globeToTrio(lp); return; }
+        if (t < pl.a && trioImg.naturalWidth) {          // Revision 51: every pause shows the REAL logo file; frames only move between them
+          var key = R(seg.from), src = M.trioParts[seg.from];
+          ctx.globalAlpha = fade; ctx.drawImage(trioImg, src[0], src[1], src[2] - src[0], src[3] - src[1], key.x, key.y, key.w, key.h); ctx.globalAlpha = 1; fr = null;
+        }
+        if (fr) {
+          ctx.globalAlpha = fade; ctx.drawImage(fr, 0, 0, M.w, M.h);
+          if (ff > 0.01 && nx && nx !== fr) { ctx.globalAlpha = fade * ff; ctx.drawImage(nx, 0, 0, M.w, M.h); }
+          ctx.globalAlpha = 1;
+        }
+        if (t >= T.land && trioImg.naturalWidth) {        // the last generated frame IS the trio; the real file settles over it, crisp
+          ctx.globalAlpha = clamp((t - T.land) / 300, 0, 1);
+          parts.forEach(function (p) { ctx.drawImage(trioImg, p.s[0], p.s[1], p.s[2] - p.s[0], p.s[3] - p.s[1], p.x, p.y, p.w, p.h); });
+          ctx.globalAlpha = 1;
+        }
+        if (t >= T.land && !root.classList.contains("is-landed")) root.classList.add("is-landed");
+      };
+      var start = 0, raf = 0, leaving = false;
+      var leave = function () {
+        if (leaving) return; leaving = true; root.classList.add("is-leaving"); dispatchEvent(new Event("fl:intro-leaving"));
+        setTimeout(function () { cancelAnimationFrame(raf); gone(); }, 700);
+      };
+      var frame = function (now) { var t = now - start; render(t); if (t >= T.out) leave(); if (!root.classList.contains("is-gone")) raf = requestAnimationFrame(frame); };   // driven by the animation clock
+      var at = q.get("t");
+      var begin = function () {
+        if (start) return;
+        if (at !== null) { render(+at * 1000); return; }
+        if (FL.lenis) FL.lenis.stop();
+        start = performance.now(); raf = requestAnimationFrame(frame);
+        var skip = function (e) { if (FL.introDone) return;   // after the intro, a tap is a tap (it used to swallow the first one)
+          if (e.type === "keydown" && /^(Shift|Control|Alt|Meta|Tab)$/.test(e.key)) return; if (e.cancelable && e.type !== "keydown") e.preventDefault(); leave(); };
+        ["wheel", "touchstart", "pointerdown", "keydown"].forEach(function (e) { addEventListener(e, skip, { passive: false, once: true }); });
+        addEventListener("touchmove", function (e) { if (!FL.introDone) e.preventDefault(); }, { passive: false });
+      };
+      // Revision 42 change 2: every frame is loaded AND decoded before playback starts
+      var all = frames.filter(function (f) { return f.src; }).concat([trioImg]).map(function (f) { return new Promise(function (res) { var go = function () { (f.decode ? f.decode() : Promise.resolve()).then(res, res); }; if (f.complete && f.naturalWidth) go(); else { f.addEventListener("load", go); f.addEventListener("error", res); } }); });
+      Promise.all(all).then(function () { var first = []; for (var j = KS.start; j < Math.min(KS.end + 1, KS.start + AHEAD); j++) first.push(want(j)); return Promise.all(first); }).then(begin);
+      setTimeout(function () { if (!start && at === null) begin(); }, 4000);   // a slow network never holds the site hostage
+    }).catch(function (e) { console.error("[First Love] intro failed, showing the site:", e); gone(); });
+  };
+
+
+  /* ---------- kinetic declaration: words assemble out of scattered positions (2819), and never stop drifting ---------- */
+  var kinetic = function (root, gsap) {
+    var sets = $$(".kin__set", root), field = $(".kin__field", root), rnd = seeded(5);
+    sets.forEach(function (s) { $$(".line", s).forEach(function (l) { l.innerHTML = l.textContent.split(" ").map(function (w) { return '<span class="w">' + w + "</span>"; }).join(" "); }); });
+    // layered ghost words behind: each layer drifts at its own speed forever and moves with its own scroll parallax
+    var ghosts = (root.getAttribute("data-ghosts") || "").split("|").filter(Boolean);
+    var layers = [0.35, 0.6, 1].map(function (depth, li) {
+      var g = []; for (var i = 0; i < 4; i++) { var e = document.createElement("span"); e.className = "kin__ghost"; e.textContent = ghosts[(i + li * 2) % ghosts.length] || "";
+        e.style.fontSize = (4 + depth * 9) + "vw"; e.style.top = (8 + i * 23 + rnd() * 6) + "%"; e.style.left = (rnd() * 60 - 10) + "%"; field.appendChild(e); g.push({ el: e, x: rnd() * 100, v: (0.6 + rnd()) * (li % 2 ? -1 : 1) * depth }); }
+      return { depth: depth, items: g };
+    });
+    var scrollY0 = 0;
+    FL.loop(root, function (t) {
+      layers.forEach(function (L) { L.items.forEach(function (it) { it.x += it.v * 0.016 * 4; if (it.x > 110) it.x = -60; if (it.x < -60) it.x = 110;
+        it.el.style.transform = "translate3d(" + it.x.toFixed(2) + "vw," + (-scrollY0 * L.depth * 0.25).toFixed(1) + "px,0)"; }); });
+      // the assembled words keep breathing a few pixels: motion never fully stops
+      sets.forEach(function (s, si) { $$(".w", s).forEach(function (w, wi) { w.style.translate = "0 " + (Math.sin(t * 0.9 + wi * 0.7 + si) * 3).toFixed(2) + "px"; }); });
+    });
+    if (FL.reduced) return;
+    var scatter = function (w) { return { x: (rnd() - 0.5) * innerWidth * 0.9, y: (rnd() - 0.5) * innerHeight * 0.7, rotation: (rnd() - 0.5) * 24, opacity: 0, scale: 0.7 + rnd() * 0.6 }; };
+    sets.forEach(function (s, i) { $$(".w", s).forEach(function (w) { gsap.set(w, i === 0 ? { opacity: 0.0 } : scatter(w)); if (i === 0) gsap.set(w, scatter(w)); }); });
+    var tl = gsap.timeline({ scrollTrigger: { trigger: $(".kin__pin", root), start: "top top", end: "+=" + (sets.length * 110) + "%", pin: true, scrub: 0.8,
+      onUpdate: function (st) { scrollY0 = st.progress * innerHeight * 2; } } });
+    sets.forEach(function (s, i) {
+      var ws = $$(".w", s);
+      tl.to(ws, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, duration: 1, stagger: { each: 0.06, from: "random" }, ease: "power3.out" });
+      tl.to({}, { duration: 0.6 });

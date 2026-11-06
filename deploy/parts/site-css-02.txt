@@ -1,0 +1,84 @@
+/* =====================================================================
+   First Love Church at GMU · SITE STYLES (sections for the six pages)
+   Phase 2: appended after explore/core.css in Mason 360's Website Custom CSS.
+   Design law (Revision 5): two calm colours + one loud accent. Paper/ink and
+   night/bone are the calm pair; First Love red is spent once per view.
+   ===================================================================== */
+
+/* ---------- demo-only stand-in for Mason 360's own top bar ---------- */
+.m360 { background: #005239; color: #E6F0EC; font: 500 13px/1 Arial, sans-serif; }
+.m360 > div { max-width: 1200px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 16px; align-items: center; }
+.m360 b { color: #fff; } .m360 b::first-letter { color: #FFCC33; } .m360 span { opacity: .75; margin-left: auto; font-size: 11px; }
+
+/* ---------- our in-content navigation (Mason 360 keeps its own header above it) ---------- */
+.fl .nav { position: sticky; top: 0; z-index: 50; background: var(--paper); color: var(--ink); border-bottom: 1px solid var(--line); }
+.fl .nav__in { width: min(100% - 2 * var(--gutter), 72rem); margin-inline: auto; display: flex; align-items: center; gap: 1.5rem; min-height: 3.5rem; }
+.fl .nav__mark { display: flex; align-items: center; gap: .6rem; text-decoration: none; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .2em; font-size: .75rem; white-space: nowrap; }
+.fl .nav__mark img { height: 1.15rem; width: auto; filter: invert(1); }
+.fl .nav__links { display: flex; gap: 1.5rem; margin-left: auto; font-family: var(--f-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; }
+.fl .nav__links a { text-decoration: none; color: var(--ink-2); padding: .5rem 0; border-bottom: 1px solid transparent; transition: color var(--t-quick) ease, border-color var(--t-quick) ease; }
+.fl .nav__links a:hover { color: var(--ink); }
+.fl .nav__links a[aria-current="page"] { color: var(--ink); border-color: var(--red); }
+.fl .nav__visit { font-family: var(--f-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; text-decoration: none; background: var(--red); color: var(--paper) !important; padding: .55rem .9rem; border-radius: 3px; white-space: nowrap; }
+.fl .nav__toggle { display: none; margin-left: auto; background: none; border: 0; color: var(--ink); font: 500 .75rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; padding: .9rem 0; cursor: pointer; }
+@media (max-width: 60rem) {
+  .fl .nav__toggle { display: block; }
+  .fl .nav__links { position: absolute; left: 0; right: 0; top: 100%; display: grid; gap: 0; margin: 0; background: var(--paper); border-bottom: 1px solid var(--line);
+    padding: .5rem var(--gutter) 1.25rem; clip-path: inset(0 0 100% 0); transition: clip-path .45s var(--ease-out); }
+  .fl .nav.is-open .nav__links { clip-path: inset(0 0 0 0); }
+  .fl .nav__links a { padding: .9rem 0; border-bottom: 1px solid var(--line); font-size: .875rem; }
+  .fl .nav__visit { margin-top: .75rem; text-align: center; }
+}
+
+/* ---------- page head (inner pages) ---------- */
+.fl .phead { padding: clamp(5rem, 12vw, 9rem) 0 clamp(3rem, 7vw, 5rem); }
+.fl .phead .t-kicker { margin-bottom: 1.25rem; }
+.fl .phead h1 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .03em; line-height: .92; font-size: clamp(2.75rem, 9vw, 8rem); }
+.fl .phead p.t-prose { margin-top: 1.75rem; }
+.fl .phead .w { display: inline-block; }
+
+/* ---------- section heads ---------- */
+.fl .shead { display: grid; gap: 1rem; margin-bottom: clamp(2.5rem, 6vw, 4rem); max-width: 46rem; }
+.fl .shead h2 { font-family: var(--f-display); font-weight: 760; font-variation-settings: "wdth" 92; letter-spacing: -.03em; line-height: 1; font-size: clamp(2.1rem, 5.4vw, 4.25rem); }
+.fl .night .shead .t-prose, .fl.night .shead .t-prose { color: var(--ash); }
+
+/* ---------- mission + founding scripture ---------- */
+.fl .mission { padding-block: var(--section); }
+.fl .mission__say { font-family: var(--f-display); font-weight: 760; font-variation-settings: "wdth" 92; letter-spacing: -.03em; line-height: 1.04; font-size: clamp(2rem, 5vw, 4.25rem); max-width: 20ch; }
+.fl .mission__say .w { display: inline-block; }
+.fl .mission__scripture { display: grid; gap: .75rem; margin-top: clamp(2.5rem, 6vw, 4rem); max-width: 34rem; margin-left: auto; padding-left: 1.5rem; border-left: 2px solid var(--line); }
+.fl .mission__spec { margin-top: clamp(3rem, 7vw, 5rem); padding-top: 1.5rem; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: .5rem 2rem; align-items: baseline; justify-content: space-between; }
+
+/* ---------- kinetic declaration (2819 mechanic: the headline assembles itself from scattered words) ---------- */
+.fl .kin__pin { position: relative; height: 100svh; overflow: hidden; display: grid; align-content: center; padding: 0 var(--gutter); }
+.fl .kin__field { position: absolute; inset: 0; pointer-events: none; }
+.fl .kin__ghost { position: absolute; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .04em; color: var(--ink); opacity: .06; white-space: nowrap; will-change: transform; }
+.fl .night .kin__ghost { color: var(--bone); opacity: .05; }
+.fl .kin__stage { position: relative; display: grid; }
+.fl .kin__set { grid-area: 1 / 1; display: grid; gap: .04em; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .03em; line-height: .92; font-size: clamp(2.4rem, 9vw, 8.5rem); }
+.fl .kin__set .line { display: block; white-space: nowrap; }
+.fl .kin__set .line.r { text-align: right; }
+.fl .kin__set .w { display: inline-block; will-change: transform, opacity; }
+.fl .kin__foot { position: absolute; left: var(--gutter); right: var(--gutter); bottom: clamp(1.25rem, 4vh, 2.5rem); display: flex; justify-content: space-between; }
+@media (max-width: 47.99rem) { .fl .kin__set { font-size: 7.6vw; letter-spacing: .01em; } }
+
+/* ---------- dorms at night (C07 developed: many students, many rooms) ---------- */
+.fl .dorms__pin { position: relative; height: 100svh; overflow: hidden; }
+.fl .dorms__sky { position: absolute; inset: 0; }
+.fl .dorms__sky svg { position: absolute; left: 50%; bottom: 0; height: 78%; width: auto; min-width: 100%; transform: translateX(-50%); }
+.fl .dorms .win { fill: #221C17; } .fl .dorms .lit { fill: #F4C77B; opacity: 0; }
+.fl .dorms .bldg { fill: #17130F; } .fl .dorms .bldg.far { fill: #120F0C; }
+.fl .dorms__beats { position: absolute; left: var(--gutter); right: var(--gutter); top: clamp(5rem, 14vh, 8rem); }
+.fl .dorms__beat { position: absolute; left: 0; top: 0; max-width: 18ch; opacity: 0; font-family: var(--f-display); font-weight: 760; font-variation-settings: "wdth" 92; letter-spacing: -.03em; line-height: 1.02; font-size: clamp(2.25rem, 6vw, 5rem); color: var(--bone); }
+.fl .dorms__beat .t-kicker { display: block; margin-bottom: 1rem; }
+.fl .dorms__beat:first-child { opacity: 1; }
+@media (max-width: 47.99rem) { .fl .dorms__sky svg { height: 62%; } }
+
+/* ---------- campus journey on the real map ---------- */
+.fl .map__pin { position: relative; height: 100svh; overflow: hidden; background: var(--paper); }
+.fl .map__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fl .map .b { fill: none; stroke: rgba(0,0,0,.22); stroke-width: 1.1; vector-effect: non-scaling-stroke; }
+.fl .map .b.named { stroke: rgba(0,0,0,.45); }
+.fl .map .b.stop { fill: rgba(0,0,0,.08); stroke: var(--ink); stroke-width: 1.6; }
+.fl .map .b.hub { fill: var(--red); stroke: var(--red); stroke-width: 2; }
+.fl .map .pth { fill: none; stroke: rgba(0,0,0,.07); stroke-width: 1; vector-effect: non-scaling-stroke; }

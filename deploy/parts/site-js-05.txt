@@ -1,0 +1,68 @@
+      var KS = M.segs[1];                                  // only flame -> globe plays frames (Kling's motion); the other two are drawn live
+      for (var i = 0; i < M.n; i++) { if (i < KS.start || i > KS.end) { frames.push({ naturalWidth: 0 }); continue; } var f = img(dir + "intro-k/" + String(i).padStart(3, "0") + ".webp"); f.onload = function () { loaded++; }; frames.push(f); }
+      var trioImg = img(FL.asset("hearts-on-fire.png"));
+      // fluid playback: a window of frames decoded ahead, off the main thread, so nothing ever decodes while drawing;
+      // frames already shown are released, so memory stays small (147 decoded frames would be over 500 MB)
+      var bm = new Array(M.n), pend = new Array(M.n), AHEAD = 24;
+      var want = function (i) { if (i < 0 || i >= M.n || bm[i] || pend[i] || !window.createImageBitmap) return pend[i];
+        pend[i] = (frames[i].decode ? frames[i].decode() : Promise.resolve()).then(function () { return createImageBitmap(frames[i]); }).then(function (b) { bm[i] = b; }, function () {}); return pend[i]; };
+      var keep = function (fi) { for (var j = Math.max(fi, KS.start); j < Math.min(KS.end + 1, Math.max(fi, KS.start) + AHEAD); j++) want(j); for (var k2 = 0; k2 < fi - 3; k2++) if (bm[k2]) { bm[k2].close(); bm[k2] = null; } };
+      var pic = function (i) { i = clamp(i, 0, M.n - 1); return bm[i] || (frames[i].naturalWidth ? frames[i] : null); };
+      var R = function (k) { var r = M.keys[k]; return { x: r.x * M.w, y: r.y * M.h, w: r.w * M.w, h: r.h * M.h }; };
+      var trioR = R("trio"), ts = M.src.trio, kT = trioR.w / (ts[2] - ts[0]);
+      var parts = ["heart", "flame", "globe"].map(function (n) { var p = M.trioParts[n]; return { x: trioR.x + (p[0] - ts[0]) * kT, y: trioR.y + (p[1] - ts[1]) * kT, w: (p[2] - p[0]) * kT, h: (p[3] - p[1]) * kT, s: p }; });
+      var SHOW = 600, TRANS = 600, LOCKUP = 2000, plan = [];   // Revision 49: everything .6s, the lockup 2s; 5.6s in all
+      M.segs.forEach(function (sg, i) { var h = i * (SHOW + TRANS); plan.push({ sg: sg, hold: h, a: h + SHOW, b: h + SHOW + TRANS }); });
+      var T = { land: plan[plan.length - 1].b, out: 0 }; T.out = T.land + LOCKUP;
+      var vw = 0, vh = 0, dpr = 1;
+      var size = function () { var d = FL.fit(cv, 1); dpr = d.d; vw = cv.width / dpr; vh = cv.height / dpr; };
+      addEventListener("resize", size); size();
+      var cam = function (k) {                             // frame the subject: a single mark medium, the trio wide
+        var r = R(k), single = k !== "trio", small = vw < 768, fx = single ? (small ? .5 : .34) : (small ? .9 : .78), fy = single ? (small ? .28 : .4) : .36;
+        return { s: Math.min(vw * fx / r.w, vh * fy / r.h), cx: r.x + r.w / 2, cy: r.y + r.h / 2 };
+      };
+
+      // the live transitions, learned from the Kling clip: one crisp line; the contour moves first, the inner lines sweep in
+      var K = 160, NS = "http://www.w3.org/2000/svg", tmp = document.createElementNS(NS, "svg"), WEIGHT = MK.weight;
+      tmp.setAttribute("style", "position:absolute;width:0;height:0;visibility:hidden"); document.body.appendChild(tmp);
+      var sample = function (d) { var p = document.createElementNS(NS, "path"); p.setAttribute("d", d); tmp.appendChild(p);
+        var L = p.getTotalLength(), pts = []; for (var i = 0; i < K; i++) { var q = p.getPointAtLength(L * i / (K - 1)); pts.push([q.x, q.y]); } tmp.removeChild(p); return { pts: pts, len: L }; };
+      var marks = {}; ["heart", "flame", "globe"].forEach(function (n) { marks[n] = { bbox: MK.marks[n].bbox, strokes: MK.marks[n].paths.map(sample) }; });
+      tmp.remove();
+      var tb = [Math.min(marks.heart.bbox[0], marks.flame.bbox[0], marks.globe.bbox[0]), Math.min(marks.heart.bbox[1], marks.flame.bbox[1], marks.globe.bbox[1]),
+                Math.max(marks.heart.bbox[2], marks.flame.bbox[2], marks.globe.bbox[2]), Math.max(marks.heart.bbox[3], marks.flame.bbox[3], marks.globe.bbox[3])];
+      var C = [(tb[0] + tb[2]) / 2, (tb[1] + tb[3]) / 2];
+      var shiftOf = function (n) { var b = marks[n].bbox; return [C[0] - (b[0] + b[2]) / 2, C[1] - (b[1] + b[3]) / 2]; };
+      var moved = function (pts, d) { return pts.map(function (p) { return [p[0] + d[0], p[1] + d[1]]; }); };
+      var lbox = function (n, d) { var b = marks[n].bbox; d = d || [0, 0]; return [b[0] + d[0], b[1] + d[1], b[2] + d[0], b[3] + d[1]]; };
+      var lcam = function (bb, single) {                   // the same framing rule as the frames, in the artwork's own coordinates
+        var w = bb[2] - bb[0] + WEIGHT, h = bb[3] - bb[1] + WEIGHT, small = vw < 768, fx = single ? (small ? .5 : .34) : (small ? .9 : .78), fy = single ? (small ? .28 : .4) : .36;
+        return { s: Math.min(vw * fx / w, vh * fy / h), cx: (bb[0] + bb[2]) / 2, cy: (bb[1] + bb[3]) / 2 };
+      };
+      var dd = function (p, q) { return Math.hypot(p[0] - q[0], p[1] - q[1]); };
+      // heart -> flame: the heart's outline becomes the flame's outer contour; the flame's inner tongues draw in from the base
+      var hS = shiftOf("heart"), fS = shiftOf("flame"), gS = shiftOf("globe");
+      var heartPts = moved(marks.heart.strokes[0].pts, hS);
+      var fl = marks.flame.strokes.slice().sort(function (a, b) { return b.len - a.len; });
+      var outer = moved(fl[0].pts, fS), inners = fl.slice(1).map(function (st) { var p = moved(st.pts, fS); return p[0][1] < p[p.length - 1][1] ? p.reverse() : p; });   // each tongue grows from its base
+      var best = 0, bestD = 1e18, rev = false;            // line the heart's loop up with the flame's contour: the start and direction that travel least
+      [false, true].forEach(function (r) { var o = r ? outer.slice().reverse() : outer; for (var k = 0; k < K; k += 2) { var s2 = 0; for (var i = 0; i < K; i += 8) s2 += dd(heartPts[(i + k) % K], o[i]); if (s2 < bestD) { bestD = s2; best = k; rev = r; } } });
+      var heartA = heartPts.map(function (p, i) { return heartPts[(i + best) % K]; }), outerB = rev ? outer.slice().reverse() : outer;
+      var line = function (pts, upto) { var n = Math.max(2, Math.round(upto * (pts.length - 1)) + 1); ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+        for (var i = 1; i < n - 1; i++) { var mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2; ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my); }
+        ctx.lineTo(pts[n - 1][0], pts[n - 1][1]); ctx.stroke(); };
+      var pen = function (c) { ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = "#0D0B09"; ctx.fillRect(0, 0, cv.width, cv.height);
+        var s = c.s * dpr; ctx.setTransform(s, 0, 0, s, dpr * vw / 2 - s * c.cx, dpr * vh * 0.44 - s * c.cy);
+        ctx.strokeStyle = "#fff"; ctx.lineWidth = WEIGHT; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.globalAlpha = 1; };
+      var outE = function (t) { return 1 - Math.pow(1 - clamp(t, 0, 1), 3); };        // the settle: an ease-out, like Kling's
+      var heartToFlame = function (lp) {
+        var k = ease(lp), ca = lcam(lbox("heart", hS), true), cb = lcam(lbox("flame", fS), true);
+        pen({ s: lerp(ca.s, cb.s, k), cx: lerp(ca.cx, cb.cx, k), cy: lerp(ca.cy, cb.cy, k) });
+        var m = ease(clamp(lp / 0.75, 0, 1)), mid = new Array(K);                        // the contour moves first
+        for (var i = 0; i < K; i++) mid[i] = [heartA[i][0] + (outerB[i][0] - heartA[i][0]) * m, heartA[i][1] + (outerB[i][1] - heartA[i][1]) * m];
+        line(mid, 1);
+        inners.forEach(function (p, j) { var r = outE((lp - 0.38 - j * 0.07) / 0.5); if (r > 0) line(p, r); });   // then the inner lines sweep in
+      };
+      // globe -> all three: the globe glides into its place in the lockup; the heart and the flame draw in beside it
+      var globeToTrio = function (lp) {
+        var k = ease(lp), ca = lcam(lbox("globe", gS), true), cb = lcam(tb, false), kc = Math.min(1, k * 1.6);

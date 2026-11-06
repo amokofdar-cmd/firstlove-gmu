@@ -1,0 +1,9 @@
+        <li><a data-fl-href="links.email" href="#" data-fl="email">firstlovegmu@gmail.com</a></li>
+        <li><a data-fl-href="links.instagram" href="#" target="_blank" rel="noopener">Instagram @firstlovegmu</a></li>
+        <li><a data-fl-href="links.mason360Events" href="#">Events and RSVPs on Mason 360</a></li>
+      </ul>
+    </div>
+    <div class="foot__base"><p class="t-ref">George Mason University, Fairfax, Virginia</p><p class="t-ref">Map data © OpenStreetMap contributors</p></div>
+  </div>
+</footer>
+</div>

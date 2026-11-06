@@ -1,0 +1,87 @@
+.fl .slide__ghost { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; font-size: clamp(6rem, 20vw, 20rem); line-height: .9; white-space: nowrap; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.22); will-change: transform; }
+/* Gatherings calendar */
+.fl .cal__list { list-style: none; padding: 0; margin: 0; perspective: 900px; }
+.fl .cal__row { display: grid; grid-template-columns: 5.5rem 1fr auto; gap: 1.25rem; align-items: center; padding: 1.1rem 0; border-top: 1px solid var(--line); }
+.fl .cal__row:last-child { border-bottom: 1px solid var(--line); }
+.fl .cal__date { display: grid; justify-items: start; font-family: var(--f-mono); font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; line-height: 1.1; }
+.fl .cal__date b { color: var(--red); font-weight: 500; } .fl .cal__date em { font-style: normal; color: var(--ink-2); }
+.fl .cal__date strong { font-family: var(--f-display); font-weight: 900; font-size: 2.25rem; font-variation-settings: "wdth" 110; letter-spacing: -.02em; line-height: 1; }
+.fl .cal__what { display: grid; gap: .3rem; } .fl .cal__what strong { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.25rem, 2.2vw, 1.6rem); text-transform: uppercase; font-variation-settings: "wdth" 115; }
+@media (max-width: 47.99rem) { .fl .cal__row { grid-template-columns: 4rem 1fr; } .fl .cal__row .mono-link { grid-column: 2; } }
+/* Known by Name sits a little larger (Revision 30) */
+@media (prefers-reduced-motion: reduce) { .fl .coc__pin { min-height: 100svh; } .fl .slide__ghost { display: none; } }
+@media (min-width: 60rem) { .fl .kbn__view.cross { height: min(90svh, 60rem); } }
+@media (max-width: 47.99rem) { .fl .kbn__view.cross { width: calc(100% - 6.5rem); } }
+.fl .kbn__pin { overflow: hidden; }
+
+/* ===== Revision 34: the entrance is a load-time intro over the page, then it lifts away ===== */
+.fl .ent { position: fixed; inset: 0; z-index: 200; height: auto; min-height: 0; background: #0D0B09; transition: transform .7s cubic-bezier(.7,0,.2,1), opacity .7s ease; will-change: transform; }
+.fl .ent.is-leaving { transform: translate3d(0,-100%,0); }
+.fl .ent.is-gone { display: none; }
+html.fl-intro, html.fl-intro body { overflow: hidden; }
+.fl .ent__lock { top: calc(44% + min(21vh, 12rem)); bottom: auto; }
+@media (max-width: 47.99rem) { .fl .ent__lock { top: calc(44% + min(13vh, 6.5rem)); } }
+.fl .ent__hint { opacity: .8; transition: opacity .4s; }
+.fl .ent.is-landed .ent__hint { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .fl .ent { display: none; } }
+
+/* Revision 34: hero words rise inside their own masks; every reveal opens inside its own box (no element crosses another mid-flight) */
+.fl .mission__name .wm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .04em; }
+.fl .mission__name .w { display: inline-block; will-change: transform; }
+.fl .reveal { transform: none; transition: opacity .7s var(--ease-out); }   /* a fade in place: composited (free), and nothing moves, so nothing can overlap */
+
+/* Revision 34: CHURCH reads as people: the photograph sized to the word, full contrast, the wall behind kept quieter */
+.fl .coc__l1 { width: max-content; margin-left: var(--gutter); padding-left: 0; background-size: 135% auto; background-position: 50% 38%; filter: none; will-change: transform, background-position; }   /* contrast baked into the file: no live filter on a giant clipped layer */
+.fl .coc__pin::before { background: rgba(255,255,255,.8); }
+
+.fl .mz__full { position: absolute; inset: 0; z-index: 2; pointer-events: none; will-change: opacity, transform; }
+.fl .mz__full img { width: 100%; height: 100%; object-fit: cover; }
+@media (prefers-reduced-motion: reduce) { .fl .mz__full { display: none; } }
+.fl .next__clock span { overflow: hidden; }
+.fl .coc__l1 { font-size: clamp(5rem, 15vw, 16rem); }
+@media (max-width: 47.99rem) { .fl .coc__l1 { font-size: 15vw; } .fl .coc__l2 { font-size: 8.4vw; } }
+
+/* ===================== Revision 35/36: the story pass ===================== */
+/* nav: the heart is the logo; "Plan your visit" is a plain link like the others (no red sales button) */
+.fl .nav__mark img { height: 1.05rem; }
+/* inner-page titles rise inside masks like the hero */
+.fl .wm { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .04em; }
+.fl .phead h1 .w { display: inline-block; will-change: transform; }
+/* hero: the name and one sentence */
+.fl .mission__say { margin-top: clamp(1.25rem, 3vw, 2rem); max-width: 30ch; font-family: var(--f-prose); font-weight: 500; font-size: clamp(1.375rem, 2.6vw, 2rem); line-height: 1.3; }
+/* the declaration on plain white: photographs inside the letters only */
+.fl .coc__pin { background: var(--paper); }
+.fl .coc__pin::before { display: none; }
+.fl .coc__wall, .fl .coc__name { display: none; }
+.fl .coc__l2 { background: transparent; }
+/* the explanation: prose, read in line by line, ending on the declaration as its full stop */
+.fl .explain { padding: clamp(5rem, 14vh, 9rem) 0 clamp(6rem, 16vh, 10rem); background: var(--paper); }
+.fl .explain__p { font-family: var(--f-prose); font-weight: 500; font-size: clamp(1.5rem, 3.1vw, 2.6rem); line-height: 1.28; letter-spacing: -.01em; max-width: 28ch; }
+.fl .explain__p + .explain__p { margin-top: clamp(1.25rem, 3vw, 2rem); }
+.fl .explain__p strong { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .01em; color: var(--red); }
+/* the visit movement: numbered steps carry the reader forward */
+.fl .visit__step { margin-top: clamp(3.5rem, 8vw, 6rem); }
+.fl .visit .shead + .visit__step { margin-top: 0; }
+.fl .visit__n { color: var(--red-ink); margin-bottom: 1.25rem; padding-top: 1rem; border-top: 2px solid var(--ink); }
+.fl .visit__next { font-family: var(--f-prose); font-size: clamp(1.25rem, 2.4vw, 1.75rem); line-height: 1.4; max-width: 40rem; }
+.fl .visit__next b { font-weight: 700; }
+.fl .visit__next .mono-link { margin-left: .5rem; white-space: nowrap; }
+.fl .form--small .form__fields { display: grid; gap: 1.25rem; }
+.fl .checks { display: grid; gap: .8rem; padding: .25rem 0; }
+.fl .seats { display: block; }
+/* See my seat: a small room; your chair is big, front and centre, with your full name on it */
+.fl .congregation.small { background: transparent; padding: 1rem .5rem 0; gap: .5rem; transform: none; margin-bottom: .5rem; }
+.fl .congregation.small .chair { width: calc(var(--s) * clamp(2.8rem, 5.6vw, 4.6rem)); }
+.fl .congregation.small .chair.is-you { width: calc(var(--s) * clamp(7rem, 15vw, 11.5rem)); z-index: 2; }
+.fl .congregation.small .chair.is-friend { width: calc(var(--s) * clamp(3.8rem, 8vw, 6.2rem)); }
+.fl .congregation.small .chair__card { white-space: normal; line-height: 1.05; }
+.fl .congregation.small .chair.is-you .chair__card { font-size: clamp(.75rem, 1.6vw, 1.2rem); padding: .4em .25em; width: 92%; }
+.fl .congregation.small .crow { align-items: flex-end; }
+@media (max-width: 47.99rem) { .fl .congregation.small .chair { width: calc(var(--s) * 8.6vw); } .fl .congregation.small .chair.is-you { width: calc(var(--s) * 22vw); } .fl .congregation.small .chair.is-friend { width: calc(var(--s) * 15vw); } }
+/* the close: only the line and the embers */
+.fl .invite-sec__say { font-size: clamp(1.375rem, 2.8vw, 2.125rem); color: var(--bone); }
+/* footer: quiet. the lockup is the one place the marks sit together */
+.fl .foot__lock { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+.fl .foot__trio { height: clamp(2.25rem, 4vw, 3rem); width: auto; filter: invert(1); }
+.fl .foot__name { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .2em; font-size: .8125rem; }
+/* About: the light that seeks */

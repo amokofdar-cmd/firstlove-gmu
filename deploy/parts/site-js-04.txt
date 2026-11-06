@@ -1,0 +1,88 @@
+    { k: "family", q: "Is First Love part of a larger church?", a: "Yes. First Love Church belongs to a worldwide family of churches founded by Bishop Dag Heward-Mills." }
+  ];
+  var faqs = function () {
+    $$("[data-faq]").forEach(function (box) {
+      var keys = (box.getAttribute("data-faq") || "").split(",").filter(Boolean);
+      var list = keys.length ? FL.faq.filter(function (f) { return keys.indexOf(f.k) > -1; }) : FL.faq;
+      box.classList.add("faq");
+      box.innerHTML = list.map(function (f) { return '<details><summary>' + f.q + '</summary><div class="ans"><p class="t-prose">' + f.a + "</p></div></details>"; }).join("");
+      if (FL.reduced) return;
+      FL.gsap().then(function (gsap) {
+        $$("details", box).forEach(function (d) {
+          var ans = $(".ans", d), p = $("p", ans), busy = false;
+          $("summary", d).addEventListener("click", function (e) {
+            e.preventDefault(); if (busy) return; busy = true;
+            if (!d.open) {                                   // open: enter at .4s, ease-out
+              d.open = true;
+              gsap.fromTo(ans, { height: 0, overflow: "hidden" }, { height: "auto", duration: 0.4, ease: "power3.out", clearProps: "height,overflow", onComplete: function () { busy = false; if (window.ScrollTrigger) window.ScrollTrigger.refresh(); } });
+              gsap.fromTo(p, { y: 8, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, delay: 0.1, ease: "power2.out" });
+            } else {                                         // close: exit faster, ease-in
+              gsap.to(p, { opacity: 0, duration: 0.15, ease: "power1.in" });
+              gsap.to(ans, { height: 0, overflow: "hidden", duration: 0.25, ease: "power2.in", onComplete: function () { d.open = false; gsap.set([ans, p], { clearProps: "all" }); busy = false; if (window.ScrollTrigger) window.ScrollTrigger.refresh(); } });
+            }
+          });
+        });
+      });
+    });
+  };
+
+  /* ---------- navigation ---------- */
+  var nav = function () {
+    var n = $(".nav"); if (!n) return;
+    var here = location.pathname.split("/").pop() || "index.html";
+    $$(".nav__links a", n).forEach(function (a) { if (a.getAttribute("href") === here) a.setAttribute("aria-current", "page"); });
+    // Revision 58: the phone menu is its own full-screen layer (the 2819 menu). It lives outside the nav, whose paint
+    // containment clipped the old drop-down to the bar so it opened invisibly.
+    var t = $(".nav__toggle", n), m = $(".menu"); if (!t || !m) return;
+    $$(".menu__links a", m).forEach(function (a) { if (a.getAttribute("href") === here) a.setAttribute("aria-current", "page"); });
+    var shut = function () { if (m.hidden) return; m.classList.remove("is-open"); t.setAttribute("aria-expanded", "false"); document.documentElement.classList.remove("menu-open");
+      if (FL.lenis) FL.lenis.start(); setTimeout(function () { if (!m.classList.contains("is-open")) m.hidden = true; }, 420); t.focus(); };
+    var open = function () { m.hidden = false; m.getBoundingClientRect(); m.classList.add("is-open"); t.setAttribute("aria-expanded", "true"); document.documentElement.classList.add("menu-open");
+      if (FL.lenis) FL.lenis.stop(); $(".menu__close", m).focus(); };
+    t.addEventListener("click", function (e) { e.preventDefault(); m.hidden ? open() : shut(); });
+    $(".menu__close", m).addEventListener("click", shut);
+    $$(".menu__links a, .menu__mark", m).forEach(function (a) { a.addEventListener("click", function () { shut(); }); });
+    addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+    addEventListener("resize", function () { if (innerWidth > 960) shut(); });
+  };
+
+
+  /* ---------- one schedule for the whole site (Revision 37.5): when the calendar changes, the form changes ---------- */
+  var DOWS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+  var hm = function (t) { var m = /(\d{1,2}):(\d{2})\s*([AP]M)?/i.exec(t || ""); if (!m) return null; var h = +m[1] % 12; if (/p/i.test(m[3] || (t.match(/[AP]M/i) || [""])[0])) h += 12; return [h, +m[2]]; };
+  FL.schedule = function () {
+    var list = FL.config.gatherings.map(function (g) {
+      var times = (g.time || "").split(/[–-]/), s0 = hm(times[0] + (/(AM|PM)/i.test(times[0]) ? "" : " " + ((g.time.match(/[AP]M/i) || ["PM"])[0]))), e0 = hm(times[1] || "");
+      return { title: g.title, dow: DOWS.indexOf(String(g.day).toLowerCase().replace(/s$/, "")), s: s0, e: e0 || [s0[0] + 1, s0[1]], where: g.place };
+    });
+    var sv = FL.config.service, sd = DOWS.indexOf(String(sv.day).toLowerCase().replace(/s$/, "")), st = hm(sv.time);
+    if (sd > -1 && st) list.unshift({ title: "Service", dow: sd, s: st, e: [st[0] + 2, st[1]], where: "The Hub" });   // appears once Kofi supplies the day
+    return list.filter(function (g) { return g.dow > -1 && g.s; });
+  };
+  FL.upcoming = function (count, days, live) {           // the next gatherings from now; live: include one in progress
+    var now = new Date(), out = [];
+    for (var k = 0; k < (days || 28); k++) { var d = new Date(now); d.setDate(d.getDate() + k);
+      FL.schedule().forEach(function (g) { if (d.getDay() !== g.dow) return;
+        var st = new Date(d); st.setHours(g.s[0], g.s[1], 0, 0); var en = new Date(d); en.setHours(g.e[0], g.e[1], 0, 0);
+        if (st > now || (live && en > now)) out.push({ title: g.title, start: st, end: en, where: g.where }); }); }
+    return out.sort(function (a, b) { return a.start - b.start; }).slice(0, count || 6);
+  };
+  FL.when = function (d) { return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
+
+  /* ---------- the entrance (Revision 34): a load-time intro that plays like a video, once, then hands over to the site.
+     heart > flame is Wan's morph, frame for frame (no blending: blending was the smear); flame > globe > all three
+     are the REAL logo files moving, landing pixel-true on hearts-on-fire.png; then the line, then it lifts away.
+     Any scroll, tap or key skips it. ?intro=off skips it; ?t=<seconds> freezes it (storyboards). ---------- */
+  var entrance = function (root) {
+    var q = new URLSearchParams(location.search), html = document.documentElement;
+    var gone = function () { root.classList.add("is-gone"); html.classList.remove("fl-intro"); if (FL.lenis) FL.lenis.start(); FL.introDone = true; dispatchEvent(new Event("fl:intro-done")); if (window.ScrollTrigger) window.ScrollTrigger.refresh(); };
+    if (FL.reduced || q.get("intro") === "off" || location.hash.length > 1 || (q.get("t") !== null && +q.get("t") > 11)) { gone(); return; }   // "Plan your visit" lands inside the page, not behind the intro
+    html.classList.add("fl-intro");
+    var cv = $("canvas", root), ctx = cv.getContext("2d"), dir = (root.getAttribute("data-frames") || "https://firstlove-gmu-preview.netlify.app/explore/frames/");
+    var img = function (src) { var i = new Image(); i.src = src; return i; };
+    var lerp = function (a, b, t) { return a + (b - a) * t; }, ease = function (t) { t = clamp(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+    Promise.all([fetch(dir + "intro-k.json").then(function (r) { return r.json(); }), fetch("https://firstlove-gmu-preview.netlify.app/explore/data/marks.json").then(function (r) { return r.json(); })]).then(function (both) {
+      var M = both[0], MK = both[1];
+      // Revision 48: the previous build's transitions exactly as they were (the generated morph frames, the camera following
+      // each form, neighbouring frames blended for 60fps), retimed: each appearance .6s, each transition .3s, lockup 2s; 4.7s.
+      var frames = [], loaded = 0;   // Revision 51: flame -> globe moves like the Kling reference; the other two as Revision 50

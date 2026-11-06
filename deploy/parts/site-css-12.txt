@@ -1,0 +1,75 @@
+@media (max-width: 47.99rem) { .fl .map__label span { display: none; } .fl .map__label b i { display: inline; } .fl .map__label b { font-size: .625rem; } .fl .map__label.is-hub span { display: block; font-size: .75rem; } }
+
+/* ===== interaction polish (2026-11-02), values from live GSAP+Lenis production sites ===== */
+:root { --e-out: cubic-bezier(.22,1,.36,1); --e-inout: cubic-bezier(.44,0,.56,1); }
+/* page to page: a white panel with a red leading edge */
+.swap { position: fixed; inset: 0; z-index: 300; background: #fff; pointer-events: none; transform: translate3d(0,100%,0); }
+.swap::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: #EE0408; }
+.swap.is-cover { transform: none; transition: none; }
+.swap.is-open { transform: translate3d(0,-100%,0); transition: transform .6s cubic-bezier(.22,1,.36,1); }
+.swap.is-closing { transform: none; transition: transform .35s cubic-bezier(.55,0,.68,.53); }
+/* press and release: a small press, a springy return */
+.fl .send, .fl .fork button, .fl .seated__acts button { transition: transform .5s cubic-bezier(.34,1.56,.64,1), border-color .25s ease, background-color .25s ease; }
+.fl .send:active, .fl .fork button:active, .fl .seated__acts button:active { transform: scale(.97); transition-duration: .1s; }
+/* links: an underline that wipes in from the left and out to the right (hover devices only) */
+.fl .mono-link { text-decoration: none; background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat; }
+@media (hover: hover) {
+  .fl .mono-link { transition: background-size .4s var(--e-out); }
+  .fl .mono-link:hover { animation: fl-underline .55s var(--e-out); }
+  .fl .cal__row:hover .cal__date { transform: translateX(4px); }
+  .fl .fork button:hover { transform: translateY(-2px); }
+}
+@keyframes fl-underline { 0% { background-size: 100% 1px; background-position: 100% 100%; } 45% { background-size: 0 1px; background-position: 100% 100%; } 46% { background-position: 0 100%; } 100% { background-size: 100% 1px; background-position: 0 100%; } }
+.fl .cal__date { transition: transform .3s var(--e-out); }
+.fl .faq summary { transition: color .25s ease; } @media (hover: hover) { .fl .faq summary:hover { color: var(--red-ink); } }
+.fl .faq summary::after { transition: transform .4s var(--e-out); }
+.fl input[aria-invalid="true"] { border-color: var(--red) !important; }
+@media (prefers-reduced-motion: reduce) { .swap { display: none; } .fl .mono-link:hover { animation: none; } }
+/* Revision 40: the Hub is a destination point, its label fully clear of it */
+.fl .map .b.hub { fill: var(--red); stroke: var(--red); stroke-width: 1.4; }
+.fl .map .hubpin { stroke: var(--red); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.fl .map__label.is-hub { padding-left: 1.4rem; } .fl .map__label.is-hub.flip { padding-right: 1.4rem; }
+.fl .map__label.is-hub b, .fl .map__label.is-hub span { background: #fff; padding: .1rem .3rem; }
+@media (max-width: 47.99rem) { .fl .kbn__view.cross { width: calc(100% - 10rem); } .fl .kbn__view.cross .kbn__n { font-size: 8.5cqi; } }   /* Revision 40: the whole cross and every name inside a phone screen */
+
+/* Revision 40.4: the visit form, one decision at a time. One column; nothing overlaps at any size */
+.fl .vform { display: grid; gap: clamp(1.5rem, 3.5vw, 2.25rem); max-width: 40rem; }
+.fl .vform__lead { font-family: var(--f-prose); font-weight: 500; font-size: clamp(1.5rem, 2.8vw, 2.125rem); line-height: 1.25; letter-spacing: -.01em; }
+.fl .vform__group { border: 0; margin: 0; padding: 0; min-width: 0; display: grid; gap: .75rem; }
+.fl .vform__label { display: block; font: 500 .75rem/1.2 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-bottom: .6rem; padding: 0; }
+.fl .gpick { display: grid; gap: .6rem; }
+.fl .gpick__opt { position: relative; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 1rem; padding: 1.05rem 1.15rem; border: 1px solid var(--line); border-radius: 6px; background: #fff; cursor: pointer; transition: border-color .25s ease, box-shadow .25s ease; }
+.fl .gpick__opt:has(input:checked) { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.fl .gpick__opt:has(input:focus-visible) { outline: 2px solid var(--red); outline-offset: 2px; }
+.fl .gpick__txt { display: grid; gap: .2rem; min-width: 0; }
+.fl .gpick__txt strong { font-family: var(--f-display); font-weight: 800; font-size: clamp(1.125rem, 2vw, 1.375rem); line-height: 1.15; letter-spacing: -.01em; }
+.fl .gpick__when { font-family: var(--f-prose); font-size: 1rem; line-height: 1.35; color: var(--ink); }
+.fl .gpick__where { font-family: var(--f-prose); font-size: .9375rem; line-height: 1.35; color: var(--ink-2); }
+.fl .gpick__opt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.fl .gpick__mark { width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 2px solid var(--ink-2); display: grid; place-items: center; flex: none; transition: border-color .25s ease; }
+.fl .gpick__mark::after { content: ""; width: .7rem; height: .7rem; border-radius: 50%; background: var(--red); transform: scale(0); transition: transform .3s cubic-bezier(.34,1.56,.64,1); }
+.fl .gpick__opt:has(input:checked) .gpick__mark { border-color: var(--ink); }
+.fl .gpick__opt:has(input:checked) .gpick__mark::after { transform: scale(1); }
+.fl .vform__field { display: grid; }
+.fl .vform__field input { width: 100%; min-height: 3.25rem; padding: 0 1rem; font: 500 1.0625rem/1 var(--f-prose); border: 1px solid var(--ink-2); border-radius: 6px; background: #fff; color: var(--ink); }
+.fl .vform__field input:focus { outline: 2px solid var(--red); outline-offset: 1px; border-color: var(--ink); }
+.fl .vform__hint { margin-top: .5rem; font-family: var(--f-prose); font-size: .9375rem; color: var(--ink-2); }
+.fl .vform__opts { display: grid; gap: .6rem; }
+.fl .vopt { position: relative; display: flex; align-items: center; gap: .9rem; min-height: 3.25rem; padding: .75rem 1.15rem; border: 1px solid var(--line); border-radius: 6px; cursor: pointer; font-family: var(--f-prose); font-weight: 500; font-size: 1.0625rem; transition: border-color .25s ease; }
+.fl .vopt input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.fl .vopt__box { width: 1.35rem; height: 1.35rem; border: 2px solid var(--ink-2); border-radius: 4px; flex: none; display: grid; place-items: center; transition: background-color .2s ease, border-color .2s ease; }
+.fl .vopt__box::after { content: ""; width: .4rem; height: .7rem; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px) scale(0); transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.fl .vopt:has(input:checked) { border-color: var(--ink); }
+.fl .vopt:has(input:checked) .vopt__box { background: var(--ink); border-color: var(--ink); }
+.fl .vopt:has(input:checked) .vopt__box::after { transform: rotate(45deg) translate(-1px, -1px) scale(1); }
+.fl .vopt:has(input:focus-visible) { outline: 2px solid var(--red); outline-offset: 2px; }
+.fl .vform__send { justify-self: stretch; min-height: 3.5rem; font-size: 1.125rem; background: var(--red); color: #fff; }
+@media (min-width: 48rem) { .fl .vform__send { justify-self: start; padding: 0 2.25rem; } }
+.fl .rsvp { padding-top: clamp(3rem, 7vw, 5rem); }
+
+/* ===================== Revision 41: the look pass ===================== */
+/* furniture: the header and the footer never move, fade, transform or re-render */
+.fl .nav, .fl .nav *, .fl .foot, .fl .foot * { animation: none !important; will-change: auto !important; }
+.fl .nav, .fl .foot, .fl .nav__mark, .fl .foot__lock { transform: none !important; }
+.fl .nav { contain: layout paint; isolation: isolate; }
+/* About: the beliefs are one clean stacked list: heading, text, scripture, each in its own space */

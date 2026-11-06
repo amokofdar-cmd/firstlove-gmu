@@ -1,0 +1,79 @@
+.fl .chair.is-new { animation: fl-chair-in .6s var(--ease-out) both; }
+@keyframes fl-chair-in { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+.fl .chair.plus .chair__card { background: var(--ink); color: #fff; white-space: normal; font-size: clamp(.65rem, 1vw, .85rem); line-height: 1.1; }
+.fl .row-of-chairs .chair { width: min(clamp(7rem, 12vw, 10rem), calc((100vw - 4rem) / var(--n, 1) - 1rem)); }
+.fl .seats__glow { position: absolute; left: 50%; bottom: 10%; width: 60%; height: 40%; transform: translateX(-50%); }
+.fl .form .check { display: flex; gap: .7rem; align-items: center; font-weight: 600; }
+.fl .form .check input { width: 1.2rem; height: 1.2rem; accent-color: var(--ink); }
+.fl .field .hint { font: 400 .8125rem/1.4 var(--f-prose); color: var(--ink-2); }
+/* submit: the same chairs expand full-screen with one sentence */
+.fl .seated { position: fixed; inset: 0; z-index: 200; background: var(--paper); display: grid; align-content: center; justify-items: center; gap: clamp(1.5rem, 4vh, 2.5rem); padding: 4rem var(--gutter); text-align: center; opacity: 0; pointer-events: none; transition: opacity .5s var(--ease-out); }
+.fl .seated.is-on { opacity: 1; pointer-events: auto; }
+.fl .seated .row-of-chairs { border: 0; min-height: 0; transform: scale(1.35); transform-origin: 50% 100%; margin-bottom: 2.5rem; }
+.fl .seated__say { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .95; font-size: clamp(2rem, 6vw, 4.5rem); max-width: 18ch; }
+.fl .seated__spec { color: var(--ink-2); }
+.fl .seated__acts { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+.fl .seated__acts button { font: 500 .8125rem/1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; background: none; border: 0; border-bottom: 1px solid currentColor; padding: .5rem 0; cursor: pointer; color: var(--ink); }
+@media (max-width: 47.99rem) { .fl .seated .row-of-chairs { transform: scale(1); } .fl .chair { width: 26vw; } }
+
+/* ---------- prayer: private, "We are praying for you." (Revisions 14-15) ---------- */
+.fl .pray { display: grid; gap: 2rem; }
+@media (min-width: 60rem) { .fl .pray { grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; } }
+.fl .field textarea { font: inherit; min-height: 7rem; padding: .75rem .9rem; border: 1px solid rgba(0,0,0,.3); border-radius: 4px; resize: vertical; }
+.fl .pray__done { display: none; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; font-size: clamp(1.75rem, 4.4vw, 3.25rem); line-height: .95; }
+.fl .form.is-sent .pray__done { display: block; }
+
+/* ---------- WILD CARD W1 (Claude original): the next gathering, counting down live ---------- */
+.fl .next { display: grid; gap: 1rem; padding-block: clamp(2.5rem, 6vw, 4rem); border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); }
+.fl .next__what { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .9; font-size: clamp(2rem, 6vw, 5rem); }
+.fl .next__clock { display: flex; flex-wrap: wrap; gap: .25rem clamp(1rem, 3vw, 2.5rem); font-family: var(--f-display); font-weight: 900; font-variation-settings: "wdth" 62; line-height: .85; font-size: clamp(3.5rem, 11vw, 9.5rem); font-variant-numeric: tabular-nums; }
+.fl .next__clock span { display: inline-flex; align-items: baseline; gap: .15em; }
+.fl .next__clock small { font: 500 .8125rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); }
+.fl .next__clock .digit { display: inline-block; }
+.fl .next__clock .digit.tick { animation: fl-tick .45s var(--ease-out); }
+@keyframes fl-tick { from { transform: translateY(-.35em); opacity: 0; } to { transform: none; opacity: 1; } }
+.fl .next__clock .live { color: var(--red); }
+
+/* ---------- WILD CARD W2 (Claude original): how far is The Hub from where you are? ---------- */
+.fl .walk { display: grid; gap: 2rem; align-items: center; }
+@media (min-width: 60rem) { .fl .walk { grid-template-columns: 1fr 1.2fr; gap: 4rem; } }
+.fl .walk__q { font-family: var(--f-display); font-weight: 760; font-variation-settings: "wdth" 92; letter-spacing: -.02em; font-size: clamp(1.5rem, 3vw, 2.25rem); line-height: 1.1; }
+.fl .walk__pick { margin-top: 1.25rem; display: flex; gap: .75rem; align-items: center; flex-wrap: wrap; font-family: var(--f-mono); font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; }
+.fl .walk__pick select { font: 600 1rem/1 var(--f-display); text-transform: none; letter-spacing: 0; min-height: 3rem; padding: 0 .9rem; border: 2px solid var(--ink); border-radius: 4px; background: #fff; }
+.fl .walk__min { margin-top: 1.5rem; font-family: var(--f-display); font-weight: 900; font-variation-settings: "wdth" 62; line-height: .82; font-size: clamp(5rem, 16vw, 12rem); }
+.fl .walk__min small { font: 500 .875rem/1 var(--f-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-2); margin-left: .5rem; }
+.fl .walk__map { position: relative; aspect-ratio: 1; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--paper); }
+.fl .walk__map svg { width: 100%; height: 100%; }
+.fl .walk__map .b { fill: none; stroke: rgba(0,0,0,.2); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.fl .walk__map .b.hub { fill: var(--red); stroke: var(--red); }
+.fl .walk__map .b.from { fill: var(--ink); stroke: var(--ink); }
+.fl .walk__map .route { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+@media (prefers-reduced-motion: reduce) {
+  .fl .coc__pin, .fl .slide__pin { height: auto; min-height: 80svh; padding-block: 4rem; }
+  .fl .haze { animation: none; } .fl .chair.is-new { animation: none; } .fl .next__clock .digit.tick { animation: none; }
+}
+
+/* ---------- white-ground conformance for sections first built on black ---------- */
+.fl .mission__name { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .02em; line-height: .92; font-size: clamp(2.4rem, 7vw, 6rem); margin-bottom: clamp(1.75rem, 4vw, 2.75rem); }
+.fl .fork button { border-color: var(--line); }
+.fl .fork button:hover { border-color: var(--ink); }
+.fl .fork span { color: var(--ink-2); font-family: var(--f-prose); font-size: 1.0625rem; }
+.fl .values li { border-top-color: var(--line); } .fl .values li:last-child { border-bottom-color: var(--line); }
+.fl .values li::before { color: var(--ink-2); } .fl .values p { color: var(--ink); font-family: var(--f-prose); font-weight: 500; }
+.fl .phead p.t-prose { color: var(--ink-2); }
+.fl .msg__meta .t-spec { color: var(--ink); }
+.fl .send { background: var(--red); color: #fff; }
+.fl .visit .seats .row-of-chairs { background: var(--paper-2); border-radius: 6px 6px 0 0; }
+
+/* =====================================================================
+   Revisions 23-24: red SOLID and SEPARATE, on every page (2819's separation)
+   ===================================================================== */
+.fl .red-block { background: var(--red); color: #fff; }
+.fl .red-block .t-kicker, .fl .red-block .t-ref, .fl .red-block .t-spec { color: rgba(255,255,255,.85); }
+.fl .red-block .t-spec .sep { color: #fff; }
+.fl .red { color: var(--red); }
+.fl .red-rule { display: block; width: clamp(4rem, 10vw, 8rem); height: 8px; background: var(--red); border: 0; margin: 0 0 clamp(1.5rem, 3vw, 2.25rem); }
+.fl .foot__word span:last-child { color: var(--red); }
+.fl .values li::before { color: var(--red) !important; font-weight: 500; }
+.fl .belief { border-top: 3px solid var(--ink); } .fl .belief .t-ref { color: var(--red-ink); }

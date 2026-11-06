@@ -1,0 +1,109 @@
+      <p class="t-prose">You are not just a number. Here you will be known by name and cared for: someone learns your name, prays for you, and walks with you as you come to know God.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 01: the form, right under "Your first time" (Revision 58), one decision at a time (Revision 40.4) -->
+<section class="section rsvp" id="visit" aria-labelledby="seat-t"><span id="rsvp"></span>
+  <div class="wrap">
+    <div class="duo duo--left duo--sticky duo--form"><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5592.jpg" alt="" loading="lazy" style="object-position:50% 35%"></figure><div class="duo__text">
+    <div class="seats" data-sec="seats">
+      <p class="visit__n t-spec">01 <span class="sep">//</span> Let us know you're coming</p>
+      <form class="vform" data-seats novalidate>
+        <h2 class="vform__lead" id="seat-t">So someone can look out for you.</h2>
+        <fieldset class="vform__group">
+          <legend class="vform__label">Which gathering?</legend>
+          <div class="gpick" data-gatherings></div>
+        </fieldset>
+        <div class="vform__field"><label class="vform__label" for="v-n">Your full name</label><input id="v-n" name="name" autocomplete="name" placeholder="First and last name"></div>
+        <div class="vform__field"><label class="vform__label" for="v-p">Phone number</label><input id="v-p" name="phone" type="tel" autocomplete="tel"><span class="vform__hint">A real person texts you a welcome. Nothing else.</span></div>
+        <div class="vform__opts">
+          <label class="vopt"><input type="checkbox" name="friend"><span class="vopt__box" aria-hidden="true"></span><span>I'm bringing a friend</span></label>
+          <label class="vopt"><input type="checkbox" name="lift"><span class="vopt__box" aria-hidden="true"></span><span>I need a lift</span></label>
+        </div>
+        <button class="send vform__send" type="submit">Save my seat</button>
+      </form>
+    </div>
+    </div></div>
+    <div class="seated" role="dialog" aria-modal="true" aria-labelledby="seated-t">
+      <div class="congregation small"></div>
+      <p class="seated__say" id="seated-t">Your seat is saved.</p>
+      <p class="t-spec seated__spec"></p>
+      <div class="seated__acts"><button class="seated__save" type="button">Save the seat image</button><button class="seated__close" type="button">Close</button></div>
+    </div>
+  </div>
+</section>
+
+<section class="section visit visit--more" aria-label="More for your first visit">
+  <div class="wrap">
+    <div class="visit__step" data-sec="nextline">
+      <p class="visit__n t-spec">02 <span class="sep">//</span> When</p>
+      <p class="visit__next">Next up: <b class="nl__what">Bible Study</b>, <span class="nl__when">Sunday, 1:00 PM</span>, <span class="nl__where">Lecture Hall Building, Room 2</span>. <a class="mono-link" href="https://mason360.gmu.edu/firstlove/events/">Every gathering</a></p>
+    </div>
+
+    <div class="visit__step">
+      <p class="visit__n t-spec">03 <span class="sep">//</span> What people ask first</p>
+      <div class="duo duo--faq"><div class="duo__text"><div data-faq="believe,happens,wear,park,lift,friends,grads"></div></div><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5636.jpg" alt="" loading="lazy" style="object-position:50% 30%"></figure></div>
+    </div>
+
+    <div class="visit__step" data-sec="walk" data-map="https://firstlove-gmu-preview.netlify.app/site/data/campus.json">
+      <p class="visit__n t-spec">04 <span class="sep">//</span> Getting there</p>
+      <div class="walk">
+        <div>
+          <h3 class="walk__q" id="walk-t">How far is The Hub from where you are?</h3>
+          <label class="walk__pick">I'm at <select aria-label="Where you are on campus"></select></label>
+          <p class="walk__min"><span class="walk__num">0</span><small>minutes on foot</small></p>
+          <p class="t-ref" style="margin-top:1rem">Real paths, real buildings. Map data © OpenStreetMap contributors</p>
+        </div>
+        <div class="walk__map" aria-hidden="true"></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- 2026-11-03 trims: the Contact page, folded into Home: prayer, then how to reach the church -->
+<section class="section pray-sec" id="pray" aria-labelledby="pray-t">
+  <div class="wrap duo duo--sticky duo--form"><div class="duo__text pray">
+    <div class="shead" style="margin:0"><p class="t-kicker red">Prayer</p><h2 id="pray-t">Do you want to be prayed for?</h2>
+      <p class="t-prose">Write your name, and your number if you'd like, and we will pray for you. It comes to the church privately; nothing is ever shown on this site.</p></div>
+    <form class="form" novalidate aria-labelledby="pray-t">
+      <div class="form__fields" style="display:grid;gap:1.25rem">
+        <div class="field"><label for="pr-n">Your name</label><input id="pr-n" name="name" autocomplete="name"></div>
+        <div class="field"><label for="pr-p">Your number (optional)</label><input id="pr-p" name="phone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="pr-r">What can we pray for?</label><textarea id="pr-r" name="request"></textarea></div>
+        <button class="send" type="submit">Leave it here</button>
+      </div>
+      <p class="pray__done" role="status">We are praying for you.</p>
+    </form>
+  </div><figure class="duo__ph"><img src="https://firstlove-gmu-preview.netlify.app/deploy/photos/IMG_5657.jpg" alt="" loading="lazy" style="object-position:50% 35%"></figure></div>
+</section>
+
+<section class="section contact-sec" id="contact" aria-labelledby="contact-t">
+  <div class="wrap">
+    <div class="shead"><p class="t-kicker red">Contact</p><h2 id="contact-t">Write to the church.</h2><p class="t-prose">A real person reads every message.</p></div>
+    <p class="t-kicker" style="margin-bottom:1.25rem">Email</p>
+    <a class="contact__mail" data-fl-href="links.email" href="#" data-fl="email">firstlovegmu@gmail.com</a>
+    <ul class="rows" style="margin-top:clamp(3rem,7vw,5rem)">
+      <li><span class="t-kicker">Instagram</span><strong data-fl="handle">@firstlovegmu</strong><a class="mono-link" data-fl-href="links.instagram" href="#" target="_blank" rel="noopener">Open</a></li>
+      <li><span class="t-kicker">Find us</span><strong>The Hub, George Mason University, Fairfax, Virginia</strong><a class="mono-link" data-fl-href="links.directions" href="#" target="_blank" rel="noopener">Directions</a></li>
+      <li><span class="t-kicker">Events</span><strong>Every event and RSVP lives on Mason 360</strong><a class="mono-link" data-fl-href="links.mason360Events" href="#">Calendar</a></li>
+    </ul>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__lock"><img class="foot__trio" src="https://firstlove-gmu-preview.netlify.app/logos/web/hearts-on-fire.png" alt="First Love Church: heart, flame and globe"></div>
+    <p class="foot__big" aria-label="First Love Church"><span>First Love</span><span class="red">Church</span></p>
+    <div class="foot__cols">
+      <div>
+        <p class="t-kicker">First Love Church at George Mason University</p>
+        <p class="foot__line">Hearts on Fire for the World</p>
+      </div>
+      <ul>
+        <li><span class="t-spec">Sun<span class="sep">//</span>Bible Study<span class="sep">//</span>1:00 PM</span></li>
+        <li><span class="t-spec">Wed<span class="sep">//</span>READY@20<span class="sep">//</span>7:00 PM</span></li>
+      </ul>
+      <ul><li><a href="https://mason360.gmu.edu/firstlove/home/#visit">Plan your visit</a></li><li><a href="https://mason360.gmu.edu/FirstLove/about/">About</a></li><li><a href="https://mason360.gmu.edu/firstlove/events/">Gatherings</a></li><li><a href="https://mason360.gmu.edu/firstlove/home/#contact">Contact</a></li></ul>
+      <ul>

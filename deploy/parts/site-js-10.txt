@@ -1,0 +1,82 @@
+    var W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H; var x = c.getContext("2d");
+    x.fillStyle = "#fff"; x.fillRect(0, 0, W, H);
+    ROWS.forEach(function (count, r) {
+      var s = 0.62 + r * 0.19, cw = 92 * s, gap = 14 * s, total = count * cw + (count - 1) * gap, x0 = (W - total) / 2, y = 470 + r * 150 * s + r * 30, mid = Math.floor(count / 2), front = r === ROWS.length - 1;
+      for (var col = 0; col < count; col++) {
+        var you = front && col === mid, fr = front && n.friend && col === mid + 1, on = you || fr, cx = x0 + col * (cw + gap);
+        x.fillStyle = "#2A2A2A"; x.beginPath(); x.roundRect(cx, y, cw, cw * 0.82, 8 * s); x.fill(); if (on) { x.strokeStyle = "#EE0408"; x.lineWidth = 6 * s; x.stroke(); }   // red outlines the seat; the name stays black
+        x.strokeStyle = "#8A8A8A"; x.lineWidth = 3 * s; x.beginPath(); x.moveTo(cx + 6 * s, y + cw * 0.9); x.lineTo(cx + 2 * s, y + cw * 1.45); x.moveTo(cx + cw - 6 * s, y + cw * 0.9); x.lineTo(cx + cw - 2 * s, y + cw * 1.45); x.stroke();
+        if (on) { x.fillStyle = "#fff"; x.fillRect(cx + cw * 0.08, y + cw * 0.22, cw * 0.84, cw * 0.3); x.fillStyle = "#0B0B0B"; x.font = "800 " + Math.round(12 * s) + "px Archivo, sans-serif"; x.textAlign = "center"; x.fillText((you ? n.you || "You" : "Your friend").toUpperCase(), cx + cw / 2, y + cw * 0.42, cw * 0.78); }
+      }
+    });
+    x.textAlign = "left"; x.fillStyle = "#0B0B0B"; x.font = "900 92px Archivo, sans-serif"; x.fillText("A SEAT IS SAVED.", 80, 200);
+    x.font = "500 28px 'IBM Plex Mono', monospace"; x.fillStyle = "#555"; x.fillText(("First Love Church // " + where).toUpperCase().slice(0, 64), 80, 270);
+    x.fillStyle = "#EE0408"; x.fillRect(80, H - 110, 120, 8);
+    var a = document.createElement("a"); a.download = "my-seat-first-love.png"; a.href = c.toDataURL("image/png"); a.click();
+  };
+
+  /* ---------- WILD CARD W1 (Claude original): the next gathering, counting down live ---------- */
+  var nextGathering = function (root) {
+    var what = $(".next__what", root), when = $(".next__when", root), clock = $(".next__clock", root), prev = "";
+    var pad = function (n) { return (n < 10 ? "0" : "") + n; };
+    var draw = function () {
+      var now = new Date(), b = FL.upcoming(1, 8, true)[0]; if (!b) return;
+      what.textContent = b.title; when.innerHTML = b.start.toLocaleDateString("en-US", { weekday: "long" }) + '<span class="sep">//</span>' + b.start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) + '<span class="sep">//</span>' + b.where;
+      if (now >= b.start) { if (prev !== "live") clock.innerHTML = '<span class="live">Happening now</span>'; prev = "live"; return; }
+      var s = Math.floor((b.start - now) / 1000), parts = [[Math.floor(s / 86400), "days"], [Math.floor(s % 86400 / 3600), "hrs"], [Math.floor(s % 3600 / 60), "min"], [s % 60, "sec"]];
+      clock.innerHTML = parts.map(function (p, i) { return '<span><b class="digit' + (prev && prev.split("|")[i] !== String(p[0]) ? " tick" : "") + '">' + pad(p[0]) + "</b><small>" + p[1] + "</small></span>"; }).join("");
+      prev = parts.map(function (p) { return p[0]; }).join("|");
+    };
+    draw(); setInterval(draw, 1000);
+  };
+
+  /* ---------- WILD CARD W2 (Claude original): how far is The Hub from where you are? Real paths, real minutes. ---------- */
+  var walk = function (root, gsap) {
+    fetch(root.getAttribute("data-map") || "https://firstlove-gmu-preview.netlify.app/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
+      var sel = $("select", root), num = $(".walk__num", root), host = $(".walk__map", root);
+      // every on-campus residence hall first (Mason Housing's names), then the other places on campus
+      [["hall", "Residence halls"], ["place", "Around campus"]].forEach(function (g) {
+        var og = document.createElement("optgroup"); og.label = g[1];
+        D.walks.filter(function (w) { return (w.kind || "place") === g[0]; }).sort(function (a, b) { return (a.label || a.from).localeCompare(b.label || b.from); })
+          .forEach(function (w) { var o = document.createElement("option"); o.value = w.from; o.textContent = (w.label || w.from).replace("Rappahannock Parking Deck", "Rappahannock parking deck"); og.appendChild(o); });
+        if (og.children.length) sel.appendChild(og);
+      });
+      sel.value = "Commonwealth Hall";
+      var svg = svgEl("svg", { preserveAspectRatio: "xMidYMid meet" }, host), gb = svgEl("g", {}, svg), polys = [];
+      D.buildings.forEach(function (b) { if (!b.n) return; var p = svgEl("polygon", { points: b.p.join(" "), class: "b" + (b.n === "The HUB" ? " hub" : "") }, gb); polys.push({ el: p, n: b.n }); });
+      var route = svgEl("polyline", { class: "route" }, svg);
+      var show = function () {
+        var w = D.walks.filter(function (x) { return x.from === sel.value; })[0]; if (!w) return;
+        polys.forEach(function (p) { p.el.classList.toggle("from", p.n === w.from); });
+        route.setAttribute("points", w.route.join(" "));
+        var xs = w.route.map(function (p) { return p[0]; }).concat(D.hub[0]), ys = w.route.map(function (p) { return p[1]; }).concat(D.hub[1]);
+        var x0 = Math.min.apply(null, xs) - 90, y0 = Math.min.apply(null, ys) - 90, ww = Math.max.apply(null, xs) + 90 - x0, hh = Math.max.apply(null, ys) + 90 - y0, m = Math.max(ww, hh);
+        svg.setAttribute("viewBox", [x0 - (m - ww) / 2, y0 - (m - hh) / 2, m, m].map(function (v) { return v.toFixed(1); }).join(" "));
+        var L = route.getTotalLength ? route.getTotalLength() : 1000; route.style.strokeDasharray = L;
+        if (FL.reduced) { route.style.strokeDashoffset = 0; num.textContent = w.minutes; return; }
+        gsap.fromTo(route, { strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.1, ease: "power2.inOut" });
+        var o = { v: 0 }; gsap.to(o, { v: w.minutes, duration: 1.1, ease: "power2.out", onUpdate: function () { num.textContent = Math.round(o.v); } });
+      };
+      sel.addEventListener("change", show); show();
+    });
+  };
+
+
+  /* ---------- scroll variety (Revision 23): pictures grow, shrink, expand, drift; words brighten ---------- */
+  var growShrink = function (el, gsap) {          // grow: a card swells to full width as it passes; shrink: full-bleed settles into a framed card
+    if (FL.reduced) return; var grow = el.getAttribute("data-fx") === "grow";
+    gsap.fromTo(el, grow ? { scale: 0.62, borderRadius: 18 } : { scale: 1, borderRadius: 0 }, { scale: grow ? 1 : 0.7, borderRadius: grow ? 0 : 18, ease: "none",
+      scrollTrigger: { trigger: el, start: grow ? "top 95%" : "top 30%", end: grow ? "center 50%" : "bottom 20%", scrub: 0.6 } });
+  };
+  var expand = function (root, gsap) {            // a small picture opens to full-bleed while the line arrives over it
+    var img = $(".expand__img", root), say = $(".expand__say", root);
+    if (FL.reduced) { img.style.clipPath = "inset(0)"; say.style.opacity = 1; return; }
+    gsap.timeline({ scrollTrigger: { trigger: $(".expand__pin", root), start: "top top", end: "+=170%", pin: true, scrub: 0.7, invalidateOnRefresh: true } })
+      .fromTo(img, { clipPath: function () {             // start from a full portrait card, never a sliver (Revision 34)
+          var vw = innerWidth, vh = innerHeight, h = vh * 0.56, w = Math.min(vw * 0.8, h * 0.8), y = (vh - h) / 2, x = (vw - w) / 2;
+          return "inset(" + y + "px " + x + "px " + y + "px " + x + "px)"; } },
+        { clipPath: "inset(0px 0px 0px 0px)", ease: "power2.inOut", duration: 1 })
+      .to(say, { opacity: 1, y: 0, duration: 0.4 }, 0.7).from(say, { y: 40, duration: 0.4 }, 0.7).to({}, { duration: 0.4 });
+  };
+  var drift = function (root) {                   // a row of pictures drifts on its own and runs against the scroll
+    var row = $(".drift__row", root), x = 0, s0 = 0, vis = false;

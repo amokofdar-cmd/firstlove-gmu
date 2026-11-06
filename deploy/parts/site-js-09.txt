@@ -1,0 +1,82 @@
+  /* ---------- CHURCH ON CAMPUS: the big line assembles from scattered words and scrolls through the pictures ---------- */
+  var coc = function (root, gsap) {
+    var l1 = $(".coc__l1", root), l2 = $(".coc__l2", root), cols = $$(".coc__col", root), p = 0, d = 0;
+    FL.loop(root, function () {                     // the type never stops: a slow drift on top of the scroll
+      d += 0.02;
+      l1.style.transform = "translate3d(" + (4 - p * 7).toFixed(2) + "vw,0,0)";
+      l1.style.translate = (Math.sin(d * 0.6) * 1.2).toFixed(2) + "vw 0";
+      l1.style.backgroundPosition = (50 + Math.sin(d * 0.21) * 14 + (p - 0.5) * 30).toFixed(2) + "% " + (38 + Math.cos(d * 0.17) * 6).toFixed(2) + "%";   // the picture inside the letters pans at its own rate (Revision 32)
+      l2.style.transform = "translate3d(" + (3 + p * 8).toFixed(2) + "vw,0,0)";
+      l2.style.translate = (Math.cos(d * 0.5) * 1.2).toFixed(2) + "vw 0";
+      cols.forEach(function (c, i) { c.style.transform = "translate3d(0," + (-(p * (18 + i * 9)) - Math.sin(d * 0.3 + i) * 1.5).toFixed(2) + "vh,0)"; });
+    });
+    if (FL.reduced) return;
+    window.ScrollTrigger.create({ trigger: $(".coc__pin", root), start: "top top", end: "+=180%", pin: true, scrub: 0.6, onUpdate: function (st) { p = st.progress; } });
+  };
+
+  /* ---------- sliding outlined type through full-bleed photography, one word solid red ---------- */
+  var slide = function (root, gsap) {
+    var rows = $$(".slide__row", root), ghosts = $$(".slide__ghost", root), img = $(".slide__photo img", root), off = rows.map(function () { return 0; }), g = 0;
+    FL.loop(root, function () { rows.forEach(function (r, i) { off[i] += (i % 2 ? 0.012 : -0.012); }); g += 0.02;
+      ghosts.forEach(function (gh, i) { gh.style.transform = "translate3d(" + ((i % 2 ? -30 : -10) + (i % 2 ? -1 : 1) * (g + p * 25)).toFixed(2) + "vw,0,0)"; }); apply(); });
+    var p = 0, apply = function () { var sc = 0.72 + 0.28 * Math.min(1, p * 2.2); rows.forEach(function (r, i) { r.style.transform = "translate3d(" + ((i % 2 ? -45 + p * 40 : -5 - p * 40) + off[i]).toFixed(2) + "vw,0,0) scale(" + sc.toFixed(3) + ")"; }); };
+    if (FL.reduced) { apply(); return; }
+    window.ScrollTrigger.create({ trigger: $(".slide__pin", root), start: "top top", end: "+=220%", pin: true, scrub: 0.6, onUpdate: function (st) { p = st.progress; if (img) img.style.transform = "scale(" + (1.12 - 0.12 * p).toFixed(3) + ")"; } });
+  };
+
+  /* ---------- the seats: your name writes itself on the chair as you type (Revisions 14, 15, 20, 22) ---------- */
+  var CHAIR = '<svg viewBox="0 0 160 230" aria-hidden="true"><rect class="back" x="14" y="6" width="132" height="112" rx="16"/><path class="seam" d="M24 18h112"/>' +
+    '<path class="frame" d="M18 116v18 M142 116v18"/><rect class="seat" x="8" y="128" width="144" height="18" rx="6"/>' +
+    '<path class="frame" d="M22 146l-6 80 M138 146l6 80 M34 146l4 60 M126 146l-4 60"/></svg>';
+  var chair = function (name, label, cls) { var d = document.createElement("div"); d.className = "chair " + (cls || ""); d.innerHTML = CHAIR + (name ? '<p class="chair__card"><small>' + label + "</small>" + name + "</p>" : ""); return d; };
+  /* one among many (Revision 26): rows of church chairs seen from behind; your chair lights up, your friends' beside it */
+  var ROWS = [9, 8, 7];                           // a small room: back row to front row; your chair is front and centre
+  var congregation = function (into, n) {
+    into.innerHTML = "";
+    ROWS.forEach(function (count, r) {
+      var row = document.createElement("div"); row.className = "crow"; row.style.setProperty("--s", (0.62 + r * 0.19).toFixed(3));
+      var front = r === ROWS.length - 1, mid = Math.floor(count / 2);
+      for (var c = 0; c < count; c++) {
+        var you = front && c === mid, friend = front && n.friend && c === mid + 1;
+        row.appendChild(chair(you ? (n.you || "Your name") : friend ? "Your friend" : "", "Saved for", you ? "lit is-you" : friend ? "lit is-friend" : ""));
+      }
+      into.appendChild(row);
+    });
+  };
+
+  var seats = function (root) {
+    var form = $("form", root), nameI = $("[name=name]", form), friendI = $("[name=friend]", form), pick = $("[data-gatherings]", form), html = document.documentElement;
+    var up = FL.upcoming(4, 21);
+    pick.innerHTML = up.map(function (u, i) {
+      var day = u.start.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }), time = u.start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+      return '<label class="gpick__opt"><span class="gpick__txt"><strong>' + u.title + '</strong><span class="gpick__when">' + day + " · " + time + '</span><span class="gpick__where">' + u.where + "</span></span>" +
+        '<input type="radio" name="gathering" value="' + i + '"' + (i ? "" : " checked") + '><span class="gpick__mark" aria-hidden="true"></span></label>';   // one gathering per row: name, then when, then where
+    }).join("");
+    var chosen = function () { var r = $("input[name=gathering]:checked", form); return up[r ? +r.value : 0]; };
+    var names = function () { return { you: (nameI.value || "").trim().replace(/\s+/g, " "), friend: friendI.checked }; };
+    var over = $(".seated", root.closest("section") || document), say = $(".seated__say", over), spec = $(".seated__spec", over), cong = $(".congregation", over);
+    var where = function () { var u = chosen(); return u ? u.title + " // " + FL.when(u.start) + " // " + u.where : ""; };
+    form.addEventListener("submit", function (e) {
+      e.preventDefault(); var n = names();
+      if (!n.you) {                                      // a name is the one thing we need: say so plainly (Revision 47: no shake anywhere)
+        nameI.focus(); nameI.setAttribute("aria-invalid", "true"); nameI.placeholder = "Your first and last name, so we can save your seat";
+        return;
+      }
+      nameI.removeAttribute("aria-invalid"); congregation(cong, n);
+      say.textContent = n.you ? "Your seat is saved, " + n.you.split(" ")[0] + "." : "Your seat is saved.";
+      spec.innerHTML = where().replace(/\/\//g, '<span class="sep">//</span>');
+      over.classList.add("is-on"); html.style.overflow = "hidden"; if (FL.lenis) FL.lenis.stop(); $(".seated__close", over).focus();
+      if (!FL.reduced && window.gsap) {                   // the room fills in, row by row; your chair settles last, with a small spring
+        gsap.fromTo($$(".crow .chair:not(.lit)", cong), { y: 18, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, ease: "power3.out", stagger: 0.012 });
+        gsap.fromTo($$(".chair.lit", cong), { scale: 0.9, y: 24, opacity: 0, transformOrigin: "50% 100%" }, { scale: 1, y: 0, opacity: 1, duration: 0.52, delay: 0.35, ease: "back.out(2.4)", stagger: 0.1 });
+        gsap.fromTo([say, spec, $(".seated__acts", over)], { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, delay: 0.55, ease: "power3.out", stagger: 0.06 });
+      }
+    });
+    $(".seated__close", over).addEventListener("click", function () { over.classList.remove("is-on"); html.style.overflow = ""; if (FL.lenis) FL.lenis.start(); });
+    addEventListener("keydown", function (e) { if (e.key === "Escape" && over.classList.contains("is-on")) $(".seated__close", over).click(); });
+    $(".seated__save", over).addEventListener("click", function () { saveSeat(names(), where()); });
+    var q = new URLSearchParams(location.search);       // storyboard hook: ?seats=Ama%20Mensah&friend=1&submit=1
+    if (q.get("seats")) { nameI.value = q.get("seats"); friendI.checked = q.get("friend") === "1"; if (q.get("submit") === "1") setTimeout(function () { form.requestSubmit(); }, 600); }
+  };
+  /* the seat becomes the invitation: a shareable image of your saved seat(s) (Revision 16) */
+  var saveSeat = function (n, where) {

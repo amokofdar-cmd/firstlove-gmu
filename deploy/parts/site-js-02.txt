@@ -1,0 +1,113 @@
+    var set = function (e) { var r = el.getBoundingClientRect(); p.x = (e.clientX - r.left) / r.width; p.y = (e.clientY - r.top) / r.height; p.px = e.clientX - r.left; p.py = e.clientY - r.top; p.active = true; };
+    el.addEventListener("pointermove", set);
+    el.addEventListener("pointerdown", set);
+    el.addEventListener("pointerleave", function () { p.active = false; });
+    el.addEventListener("pointerup", function (e) { if (e.pointerType === "touch") p.active = false; });
+    return p;
+  };
+
+  /* fit a canvas to its box at a capped pixel ratio */
+  FL.fit = function (canvas, scale) {
+    var r = canvas.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2) * (scale || 1);
+    var w = Math.max(1, Math.round(r.width * d)), h = Math.max(1, Math.round(r.height * d));
+    if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    return { w: w, h: h, d: d, cw: r.width, ch: r.height };
+  };
+
+  /* =====================================================================
+     FLAME SHADER (WebGL1). One shader powers every fire moment:
+     - heat rising from a mark's own silhouette (mask texture) and/or a base
+     - a burn-dissolve that reveals the untouched logo file (logo texture)
+     The real logo is drawn from the original PNG pixels, so letterforms
+     never warp: the fire is around it, the resolve is pixel-true.
+     ===================================================================== */
+  var VS = "attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}";
+  var FS = [
+    "precision highp float;",
+    "uniform vec2 r;uniform float t,inten,burn,hasLogo,hasMask,base,glow;",
+    "uniform sampler2D mask,logo;uniform vec4 mRect,lRect;",
+    "float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
+    "float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),u.x),mix(h(i+vec2(0,1)),h(i+vec2(1,1)),u.x),u.y);}",
+    "float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.03+vec2(1.7,9.2);a*=.5;}return v;}",
+    "vec3 ramp(float x){x=clamp(x,0.,1.);vec3 c=mix(vec3(0.),vec3(.42,.0,.01),smoothstep(0.,.22,x));",
+    "c=mix(c,vec3(.93,.016,.03),smoothstep(.18,.42,x));c=mix(c,vec3(1.,.42,.06),smoothstep(.42,.68,x));",
+    "c=mix(c,vec3(1.,.83,.52),smoothstep(.68,.94,x));return c;}",
+    "float sm(vec2 uv){vec2 q=(uv-mRect.xy)/mRect.zw;if(q.x<0.||q.y<0.||q.x>1.||q.y>1.)return 0.;return texture2D(mask,vec2(q.x,1.-q.y)).a;}",
+    "void main(){",
+    " vec2 uv=gl_FragCoord.xy/r;float asp=r.x/r.y;vec2 p=vec2(uv.x*asp,uv.y);",
+    " float n1=fbm(vec2(p.x*3.,p.y*2.2-t*1.25));",
+    " float n2=fbm(vec2(p.x*6.5,p.y*5.5-t*2.3)+n1*1.3);",
+    " float src=0.;",
+    " if(hasMask>.5){vec2 du=vec2((n2-.5)*.05,0.);",
+    "  float j=h(gl_FragCoord.xy+fract(t)*91.);for(int k=0;k<12;k++){float fk=float(k)+j;src+=sm(uv+du*fk-vec2(0.,.018*fk*(.45+n1)))*(1.-fk/13.);}src=min(src/3.,1.)*.68;}",
+    " float b=base*smoothstep(.5,0.,uv.y)*(.35+.95*n1);",
+    " float heat=(src+b)*inten;heat*=smoothstep(.02,.58,n2+.04)*1.6*(.5+.75*n2);heat*=1.1-uv.y*.45;",
+    " vec3 col=ramp(heat)*(1.+glow);float al=clamp(heat*2.,0.,1.);",
+    " if(hasLogo>.5){vec2 q=(uv-lRect.xy)/lRect.zw;",
+    "  if(q.x>=0.&&q.y>=0.&&q.x<=1.&&q.y<=1.){vec4 L=texture2D(logo,vec2(q.x,1.-q.y));",
+    "   float d=fbm(q*vec2(4.5,3.5)+2.)*.85+(1.-q.y)*.25;float th=burn*1.3-.15;",
+    "   float vis=1.-smoothstep(th-.035,th,d);float edge=smoothstep(.07,0.,abs(d-th))*step(burn,.995);",
+    "   col=mix(col,L.rgb,L.a*vis);col+=vec3(1.,.5,.12)*edge*L.a*1.6;al=max(al,L.a*max(vis,edge));}}",
+    " gl_FragColor=vec4(col*al,al);}"
+  ].join("\n");
+
+  FL.flame = function (canvas, o) {
+    o = o || {};
+    var gl = canvas.getContext("webgl", { premultipliedAlpha: true, alpha: true, antialias: false, preserveDrawingBuffer: !!o.preserve });
+    if (!gl) return null;
+    var sh = function (type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s)); return s; };
+    var pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+    var buf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    var loc = gl.getAttribLocation(pr, "a"); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    var U = {}; ["r", "t", "inten", "burn", "hasLogo", "hasMask", "base", "glow", "mask", "logo", "mRect", "lRect"].forEach(function (k) { U[k] = gl.getUniformLocation(pr, k); });
+    var tex = function (img, unit) {
+      var tx = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tx);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img); return tx;
+    };
+    gl.uniform1i(U.mask, 0); gl.uniform1i(U.logo, 1);
+    var state = { mask: null, logo: null, mRect: [0, 0, 1, 1], lRect: [0, 0, 1, 1], inten: 1, burn: 1, base: 0, glow: 0 };
+    if (o.mask) { tex(o.mask, 0); state.mask = true; }
+    if (o.logo) { tex(o.logo, 1); state.logo = true; }
+    var api = {
+      gl: gl, state: state,
+      /* place an image (natural aspect) centered at cx,cy (0..1, y down) with width w (0..1 of canvas width) */
+      place: function (which, img, cx, cy, w) {
+        var W = canvas.width, H = canvas.height, pw = w * W, ph = pw * img.naturalHeight / img.naturalWidth;
+        var rect = [(cx * W - pw / 2) / W, 1 - (cy * H + ph / 2) / H, pw / W, ph / H];
+        state[which === "mask" ? "mRect" : "lRect"] = rect; return rect;
+      },
+      draw: function (t) {
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.uniform2f(U.r, canvas.width, canvas.height); gl.uniform1f(U.t, t);
+        gl.uniform1f(U.inten, state.inten); gl.uniform1f(U.burn, state.burn); gl.uniform1f(U.base, state.base); gl.uniform1f(U.glow, state.glow);
+        gl.uniform1f(U.hasMask, state.mask ? 1 : 0); gl.uniform1f(U.hasLogo, state.logo ? 1 : 0);
+        gl.uniform4fv(U.mRect, state.mRect); gl.uniform4fv(U.lRect, state.lRect);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      }
+    };
+    return api;
+  };
+
+  /* =====================================================================
+     EMBER FIELD (2D canvas). Embers rise and drift; the pointer parts
+     them with a soft repel + swirl. Count scales with area and device.
+     ===================================================================== */
+  FL.embers = function (canvas, o) {
+    o = o || {};
+    var ctx = canvas.getContext("2d"), parts = [], dims, ptr = FL.pointer(o.pointerEl || canvas);
+    var seed = 11, rnd = function () { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+    var spawn = function (p, anywhere) {
+      p.x = rnd() * dims.cw; p.y = anywhere ? rnd() * dims.ch : dims.ch + rnd() * 40;
+      p.vx = 0; p.vy = -(18 + rnd() * 46); p.r = 1.1 + rnd() * 3.4; p.life = 0; p.max = 4 + rnd() * 7; p.hue = rnd(); return p;
+    };
+    var resize = function () {
+      dims = FL.fit(canvas);
+      var target = Math.round(Math.min(o.max || 520, dims.cw * dims.ch / ((FL.coarse ? 1500 : 1000) * (o.sparse || 1))));   // sparse > 1: fewer embers
+      while (parts.length < target) parts.push(spawn({}, true)); parts.length = target;
+    };

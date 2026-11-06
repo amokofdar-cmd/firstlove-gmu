@@ -1,0 +1,76 @@
+.fl .map .route { fill: none; stroke: var(--red); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.fl .map .dot { fill: var(--red); }
+.fl .map__cap { position: absolute; left: var(--gutter); top: clamp(4.5rem, 12vh, 7rem); max-width: 22rem; }
+.fl .map__cap h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .03em; line-height: .95; font-size: clamp(2rem, 5.2vw, 4.25rem); color: var(--ink); }
+.fl .map__stops { position: absolute; right: var(--gutter); bottom: clamp(2rem, 7vh, 4rem); display: grid; gap: .5rem; text-align: right; }
+.fl .map__stop { font-family: var(--f-mono); font-size: .8125rem; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,.3); transition: color .4s ease; }
+.fl .map__stop small { display: block; font-size: .6875rem; letter-spacing: .08em; opacity: .8; text-transform: none; font-family: var(--f-prose); font-style: italic; font-size: .9375rem; }
+.fl .map__stop.is-on { color: var(--ink); } .fl .map__stop.is-hub.is-on { color: var(--red); }
+.fl .map__credit { position: absolute; left: var(--gutter); bottom: 1rem; font: 400 .6875rem/1.3 var(--f-mono); color: var(--ink-2); }
+@media (max-width: 47.99rem) { .fl .map__stops { left: var(--gutter); right: var(--gutter); text-align: left; grid-template-columns: 1fr 1fr; } .fl .map__cap { right: var(--gutter); } }
+
+/* ---------- gathering posters (C15) ---------- */
+.fl .posters { display: grid; gap: 1.25rem; }
+@media (min-width: 60rem) { .fl .posters { grid-template-columns: 1fr 1fr; } }
+.fl .poster { container-type: inline-size; position: relative; display: grid; grid-template-rows: 1fr auto; min-height: clamp(28rem, 58vw, 38rem); padding: clamp(1.5rem, 3vw, 2.5rem); border-radius: 6px; overflow: hidden; }
+.fl .poster.p1 { background: var(--paper-2); color: var(--ink); } .fl .poster.p2 { background: var(--night); color: var(--bone); }
+.fl .poster.p3 { background: var(--ink); color: var(--bone); }
+.fl .poster__title { font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 62; letter-spacing: -.01em; line-height: .84; font-size: 27cqi; }
+.fl .poster__title span { display: block; } .fl .poster__title .o { color: transparent; -webkit-text-stroke: 2px currentColor; }
+.fl .poster__info { display: grid; gap: .9rem; }
+.fl .poster__info .t-prose { font-size: 1.125rem; max-width: 28rem; } .fl .poster.p2 .t-prose, .fl .poster.p3 .t-prose { color: var(--ash); }
+.fl .poster__mark { position: absolute; right: 1.25rem; top: 1.25rem; width: 2.75rem; }
+.fl .poster.p1 .poster__mark { filter: invert(1); }
+.fl .mono-link { font-family: var(--f-mono); font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; text-underline-offset: .3em; justify-self: start; }
+
+/* ---------- Known by Name (white background, B/W portrait wall, one red thread) ---------- */
+.fl .known { background: #FFFFFF; color: var(--ink); padding-block: var(--section); }
+.fl .known__wall { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(.75rem, 2vw, 1.5rem); margin-top: clamp(2.5rem, 6vw, 4rem); }
+@media (max-width: 47.99rem) { .fl .known__wall { grid-template-columns: repeat(3, 1fr); } }
+.fl .known__p { position: relative; z-index: 1; }
+.fl .known__photo { aspect-ratio: 4 / 5; background: #E9E6E1; border-radius: 3px; overflow: hidden; filter: grayscale(1); display: grid; place-items: center; }
+.fl .known__photo svg { width: 46%; height: auto; opacity: .35; }
+.fl .known__photo img { width: 100%; height: 100%; object-fit: cover; }
+.fl .known__name { font-family: "Caveat", "Bradley Hand", cursive; font-weight: 600; font-size: clamp(1.25rem, 2.2vw, 1.75rem); line-height: 1; margin-top: .4rem; transform: rotate(-2deg); }
+.fl .known__note { margin-top: 1.5rem; }
+
+/* ---------- latest message (C16) ---------- */
+.fl .msg__grid { display: grid; gap: 2rem; }
+@media (min-width: 60rem) { .fl .msg__grid { grid-template-columns: 1.6fr 1fr; align-items: end; gap: 3rem; } }
+.fl .msg__art { position: relative; aspect-ratio: 16 / 9; background: var(--night-2); border-radius: 6px; overflow: hidden; display: grid; align-content: end; padding: clamp(1.25rem, 3vw, 2.25rem); border: 0; width: 100%; text-align: left; color: var(--bone); cursor: pointer; }
+.fl .msg__art .t-poster { font-size: clamp(3rem, 9vw, 7.5rem); line-height: .84; position: relative; z-index: 1; }
+.fl .msg__art img { position: absolute; right: 6%; top: 10%; height: 74%; width: auto; opacity: .14; }
+.fl .msg__tag { position: absolute; top: 1rem; left: 1rem; z-index: 1; }
+.fl .msg__play { position: absolute; right: clamp(1rem, 3vw, 2rem); bottom: clamp(1rem, 3vw, 2rem); z-index: 1; width: clamp(3.25rem, 6vw, 4.5rem); aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--bone); display: grid; place-items: center; transition: transform var(--t-quick) var(--ease-spring); }
+.fl .msg__play::before { content: ""; margin-left: 12%; border-style: solid; border-width: .7em 0 .7em 1.15em; border-color: transparent transparent transparent var(--bone); }
+.fl .msg__art:active .msg__play { transform: scale(.94); }
+.fl .msg__art iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; z-index: 3; }
+.fl .msg__meta { display: grid; gap: 1rem; } .fl .msg__meta .t-spec { color: var(--bone); }
+
+/* ---------- the one invitation (C18, ember field) ---------- */
+.fl .invite-sec { position: relative; min-height: 92svh; display: grid; place-items: center; overflow: hidden; touch-action: pan-y; }
+.fl .invite-sec canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fl .invite-sec__in { position: relative; z-index: 1; display: grid; justify-items: center; gap: clamp(1.75rem, 4vh, 2.75rem); padding: 0 var(--gutter); text-align: center; pointer-events: none; }
+.fl .invite-sec__in a { pointer-events: auto; }
+.fl .invite-sec__mark { width: clamp(5.5rem, 12vw, 8.5rem); }
+.fl .invite-sec__say { font-family: var(--f-prose); font-size: clamp(1.5rem, 3.2vw, 2.5rem); line-height: 1.3; max-width: 22ch; }
+.fl .invite-sec__say .invite { font-family: var(--f-prose); font-weight: 500; font-style: italic; }
+
+/* ---------- FAQ module (written once, reused on New Here, About, Gatherings) ---------- */
+.fl .faq { border-top: 1px solid var(--line); }
+.fl .night .faq { border-color: var(--line-night); }
+.fl .faq details { border-bottom: 1px solid var(--line); }
+.fl .night .faq details { border-color: var(--line-night); }
+.fl .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 1.5rem; align-items: baseline; padding: 1.4rem 0; font-family: var(--f-display); font-weight: 700; font-variation-settings: "wdth" 92; font-size: clamp(1.125rem, 1.8vw, 1.375rem); letter-spacing: -.01em; }
+.fl .faq summary::-webkit-details-marker { display: none; }
+.fl .faq summary::after { content: "+"; font-family: var(--f-mono); font-weight: 400; transition: transform var(--t-quick) var(--ease-spring); }
+.fl .faq details[open] summary::after { transform: rotate(45deg); }
+.fl .faq .ans { padding: 0 0 1.6rem; max-width: 40rem; }
+.fl .faq .ans .t-prose { color: var(--ink-2); }
+.fl .night .faq .ans .t-prose { color: var(--ash); }
+
+/* ---------- New Here: the fork, the arrival, the form (last) ---------- */
+.fl .fork { display: grid; gap: 1rem; }
+@media (min-width: 48rem) { .fl .fork { grid-template-columns: 1fr 1fr; } }
+.fl .fork button { text-align: left; font: inherit; color: inherit; background: none; border: 1px solid var(--line-night); border-radius: 6px; padding: clamp(1.5rem, 3vw, 2.25rem); cursor: pointer; display: grid; gap: .75rem; transition: border-color var(--t-quick) ease, background-color var(--t-quick) ease, transform var(--t-press) ease; }
+.fl .fork button:hover { border-color: var(--bone); }

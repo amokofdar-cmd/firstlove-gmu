@@ -1,0 +1,89 @@
+        if (w / h < aspect) w = h * aspect; else h = w / aspect;
+        vb = [cx - w / 2, cy - h / 2, w, h]; scale = rect.width / w;
+      };
+      var at = function (r, d) { for (var i = 1; i < r.seg.length; i++) if (r.seg[i] >= d) { var t = (d - r.seg[i - 1]) / ((r.seg[i] - r.seg[i - 1]) || 1); return [r.R[i - 1][0] + (r.R[i][0] - r.R[i - 1][0]) * t, r.R[i - 1][1] + (r.R[i][1] - r.R[i - 1][1]) * t, i]; } var e = r.R[r.R.length - 1]; return [e[0], e[1], r.R.length]; };
+      var ease = function (t) { return t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; };
+      var place = function (el, x, y) { var sx = (x - vb[0]) * scale, sy = (y - vb[1]) * scale; el.style.transform = "translate3d(" + sx.toFixed(1) + "px," + sy.toFixed(1) + "px,0)"; };
+      var set = function (p) {
+        var push = 1 - 0.05 * p, w = vb[2] * push, h = vb[3] * push, x = vb[0] + (vb[2] - w) / 2, y = vb[1] + (vb[3] - h) / 2;   // a slow push-in: never still
+        svg.setAttribute("viewBox", [x, y, w, h].map(function (v) { return v.toFixed(1); }).join(" "));
+        var s = scale / push, px = 1 / s, live = { vb: [x, y], s: s };
+        roads.forEach(function (r) {
+          var k = ease(clamp((p - r.t0) / (r.t1 - r.t0), 0, 1)), d = k * r.len, hp = at(r, d);
+          var pts = r.R.slice(0, hp[2]).map(function (q) { return q.join(","); }); pts.push(hp[0].toFixed(1) + "," + hp[1].toFixed(1));
+          r.line.setAttribute("points", k > 0 ? pts.join(" ") : "");          // the line is built up to the traveller: it can never detach
+          r.dot.setAttribute("cx", hp[0].toFixed(1)); r.dot.setAttribute("cy", hp[1].toFixed(1));
+          r.dot.setAttribute("r", (k > 0 && k < 1 ? 6.5 : 0) * px); r.origin.setAttribute("r", 4.5 * px);
+          r.origin.classList.toggle("is-on", p >= r.t0 - 0.03);
+          var sx = (r.R[0][0] - x) * s, sy = (r.R[0][1] - y) * s; r.lab.classList.toggle("flip", (r.left && sx > 190) || sx > host.clientWidth * 0.66); r.lab.style.transform = "translate3d(" + sx.toFixed(1) + "px," + sy.toFixed(1) + "px,0)";   // near the right edge a label sits to the left of its point
+          r.lab.style.opacity = clamp((p - r.t0 + 0.05) / 0.06, 0, 1).toFixed(2);
+        });
+        var lit = clamp((p - arriveFirst + 0.02) / 0.06, 0, 1);
+        if (hubEl) { hubEl.style.fillOpacity = (0.06 + 0.16 * lit).toFixed(2); }
+        pin.setAttribute("r", ((7 + 3 * lit) * px).toFixed(2)); pin.style.fill = lit > 0.5 ? "var(--red)" : "#fff";
+        var rk = clamp((p - arriveLast) / 0.09, 0, 1);                       // when the last road arrives, the Hub answers once
+        ring.setAttribute("r", (rk * 46 * px * 1.2).toFixed(2)); ring.style.opacity = rk > 0 && rk < 1 ? (1 - rk).toFixed(2) : 0;
+        var hx = (end[0] - x) * s; hubLab.classList.toggle("flip", hx > host.clientWidth * 0.62); hubLab.style.transform = "translate3d(" + hx.toFixed(1) + "px," + ((end[1] - y) * s - 30).toFixed(1) + "px,0)";   // the label sits clear above-right of the point
+        hubLab.style.opacity = p >= arriveFirst ? 1 : 0;   // red stays solid: the label appears, it never fades through pink
+      };
+      var cur = 0; frame(); set(0);
+      addEventListener("resize", function () { frame(); set(cur); });
+      if (FL.reduced) { set(1); return; }
+      window.ScrollTrigger.create({ trigger: $(".map__pin", root), start: "top top", end: "+=150%", pin: true, scrub: true, onUpdate: function (st) { cur = st.progress; set(cur); } });   // Revision 38/40: locked 1:1 to the scroll; half the length
+      // this pin is created late (after the map data loads) but sits above other pins: re-order every pin by page position
+      window.ScrollTrigger.sort(); window.ScrollTrigger.refresh();
+    });
+  };
+
+
+  /* ---------- Known by Name: faces arrive one by one, names write themselves on. No thread (Revision 17). ---------- */
+  var known = function (root, gsap) {
+    var tiles = $$(".known__p", root); if (FL.reduced || !tiles.length) return;
+    gsap.set(tiles, { opacity: 0, y: 26 }); gsap.set($$(".known__name", root), { clipPath: "inset(0 100% 0 0)" });
+    window.ScrollTrigger.batch(tiles, { start: "top 88%", once: true, onEnter: function (els) {
+      gsap.to(els, { opacity: 1, y: 0, duration: 0.9, ease: "expo.out", stagger: 0.08 });
+      gsap.to(els.map(function (e) { return $(".known__name", e); }), { clipPath: "inset(0 0% 0 0)", duration: 0.8, ease: "power2.out", stagger: 0.08, delay: 0.35 });
+    } });
+  };
+
+  /* ---------- light beam (words are dark until light falls on them) ---------- */
+  var beam = function (root) {                     // the first flashlight (Revision 31, restored by Revision 37)
+    if (FL.reduced) return;
+    var ptr = FL.pointer(root), a = 40, last = 0;
+    FL.loop(root, function (t) {
+      var dt = Math.min(0.05, t - last || 0.016); last = t;
+      var r = root.getBoundingClientRect(), small = FL.small(), ox = (small ? 0.5 : 0.06) * r.width, oy = r.height, target;
+      var lo = small ? -58 : 10, hi = small ? 58 : 86;
+      if (ptr.active) target = Math.atan2(ptr.px - ox, -(ptr.py - oy)) * 180 / Math.PI;      // a pointer or a finger aims it
+      else {                                             // otherwise the scroll sweeps it across the dark, with a slow breath
+        var prog = clamp(-r.top / Math.max(1, r.height * 0.9), 0, 1);
+        target = lo + (hi - lo) * (0.5 + 0.5 * Math.sin(t * 0.42 + prog * 5.2));
+      }
+      a += (target - a) * Math.min(1, dt * 7); root.style.setProperty("--a", a.toFixed(2) + "deg");
+    });
+  };
+
+
+  /* ---------- origin: one line from Legon (2012) to Fairfax, drawn by scroll ---------- */
+  var origin = function (root, gsap) {
+    var host = $(".origin__map", root);
+    fetch(root.getAttribute("data-dots") || "https://firstlove-gmu-preview.netlify.app/explore/data/world-dots.json").then(function (r) { return r.json(); }).then(function (D) {
+      var small = FL.small(), L0 = small ? -95 : -110, L1 = small ? 15 : 30, A0 = 62, A1 = -8, W = 1000, H = W * (A0 - A1) / (L1 - L0);
+      var X = function (lon) { return (lon - L0) / (L1 - L0) * W; }, Y = function (lat) { return (A0 - lat) / (A0 - A1) * H; };
+      var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H.toFixed(0), role: "img", "aria-label": "A line from Legon, Accra, Ghana to Fairfax, Virginia" }, host);
+      var r = (W / ((L1 - L0) / D.step)) * 0.28;
+      D.dots.forEach(function (d) { if (d[0] >= L0 && d[0] <= L1 && d[1] <= A0 && d[1] >= A1) svgEl("circle", { cx: X(d[0]).toFixed(1), cy: Y(d[1]).toFixed(1), r: r.toFixed(2), class: "dot" }, svg); });
+      var a = [X(-0.19), Y(5.65)], b = [X(-77.31), Y(38.83)], mx = (a[0] + b[0]) / 2, my = Math.min(a[1], b[1]) - H * 0.32;
+      var path = svgEl("path", { d: "M" + a + " Q" + mx + "," + my + " " + b, class: "arc" }, svg);
+      var mk = function (p, lines, anchor, dy) { var g = svgEl("g", {}, svg); svgEl("circle", { cx: p[0], cy: p[1], r: 11, class: "ring" }, g); svgEl("circle", { cx: p[0], cy: p[1], r: 4.5, class: "pin" }, g);
+        lines.forEach(function (t, i) { var tx = svgEl("text", { x: p[0] + (anchor === "end" ? -20 : 20), y: p[1] + dy + i * (small ? 24 : 17), "text-anchor": anchor, class: "lbl" + (i ? " sub" : "") }, g); tx.textContent = t; }); return g; };
+      mk(a, ["2012 // Legon, Accra", "University of Ghana"], "start", 30);
+      var end = mk(b, ["Now // Fairfax, Virginia", "George Mason University"], "end", 34);
+      var len = path.getTotalLength(); path.style.strokeDasharray = len; path.style.strokeDashoffset = FL.reduced ? 0 : len;
+      if (FL.reduced) return;
+      end.style.opacity = 0;
+      gsap.timeline({ scrollTrigger: { trigger: host, start: "top 75%", end: "bottom 45%", scrub: 0.6 } }).to(path, { strokeDashoffset: 0, ease: "none", duration: 1 }).to(end, { opacity: 1, duration: 0.2 }, 0.85);
+    });
+  };
+
+

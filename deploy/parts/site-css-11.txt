@@ -1,0 +1,76 @@
+.fl .seek__pin { position: relative; height: 100svh; min-height: 34rem; overflow: hidden; background: #0B0B0B; color: var(--bone); touch-action: pan-y; }
+.fl .seek__light { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fl .seek__kick { position: absolute; left: var(--gutter); top: clamp(4.5rem, 10vh, 6rem); color: var(--ash); z-index: 2; }
+.fl .seek__line { position: absolute; z-index: 1; margin: 0; opacity: .07; will-change: opacity; font-family: var(--f-prose); font-weight: 500; line-height: 1.3; color: #fff; }
+.fl .seek__line p { margin: 0; } .fl .seek__line cite { display: block; margin-top: .75rem; font-style: normal; color: var(--ash); }
+.fl p.seek__line { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-variation-settings: "wdth" 115; letter-spacing: .01em; line-height: 1; font-size: clamp(1.75rem, 4.2vw, 3.75rem); max-width: 16ch; }
+.fl blockquote.seek__line { font-size: clamp(1.125rem, 2vw, 1.625rem); max-width: 30ch; }
+.fl .seek .s1 { left: 8%; top: 17%; max-width: 12ch; } .fl .seek .s2 { left: 58%; top: 30%; } .fl .seek .s3 { left: 10%; top: 56%; } .fl .seek .s4 { left: 52%; top: 72%; }
+.fl .seek__hint { position: absolute; right: var(--gutter); bottom: 1.25rem; color: var(--ash); transition: opacity .4s; z-index: 2; }
+@media (max-width: 47.99rem) {
+  .fl .seek .s1 { left: var(--gutter); top: 15%; } .fl .seek .s2 { left: var(--gutter); top: 31%; right: var(--gutter); } .fl .seek .s3 { left: var(--gutter); top: 55%; right: var(--gutter); } .fl .seek .s4 { left: var(--gutter); top: 75%; }
+  .fl p.seek__line { font-size: 8.4vw; }
+}
+.fl .seek.is-static .seek__line { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .fl .seek__line { opacity: 1; } }
+/* About: who we are lands on the house line, said once */
+.fl .who__stop { margin-top: clamp(1.75rem, 4vw, 2.75rem); font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; letter-spacing: .01em; line-height: .95; font-size: clamp(1.75rem, 4.6vw, 3.75rem); color: var(--red); }
+.fl .beliefs__stop { margin-top: clamp(2.5rem, 6vw, 4rem); padding-top: 1.5rem; border-top: 3px solid var(--ink); font-family: var(--f-display); font-weight: 800; font-size: clamp(1.5rem, 3vw, 2.5rem); line-height: 1.15; letter-spacing: -.01em; max-width: 26ch; }
+/* a photo band: a chapter break, moving while it is on screen */
+.fl .band { position: relative; height: clamp(22rem, 70svh, 46rem); overflow: hidden; }
+.fl .band__in { position: absolute; inset: 0; }
+.fl .band__in img { width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+/* KNOW GOD as a band: a picture break, not a second declaration */
+.fl .mz--band .mz__word { font-size: clamp(3.5rem, 13vw, 13rem); }
+/* photo-filled letters: the contrast is baked into the file; no live filter */
+.fl .photo-type { filter: none; }
+/* Gatherings: nothing sits still */
+.fl [data-flow] { will-change: transform; }
+.fl [data-sec='posters'] .poster__title { will-change: transform; }
+
+/* ===================== Revision 37 ===================== */
+/* the opening: one unit, one breath. The declaration and its explanation share one block, above the fold */
+.fl .opening { background: var(--paper); padding: clamp(5.5rem, 13vh, 8.5rem) 0 clamp(4rem, 10vh, 7rem); overflow: hidden; }
+.fl .opening__in { display: grid; gap: clamp(1.5rem, 3.5vh, 2.5rem); }
+.fl .opening__type { display: grid; justify-items: start; font-family: var(--f-display); font-weight: 900; text-transform: uppercase; font-variation-settings: "wdth" 125; line-height: .84; letter-spacing: -.01em; }
+.fl .opening__type .wm { display: block; overflow: hidden; padding-bottom: .02em; }
+.fl .opening__type .coc__l1 { display: block; font-size: clamp(5rem, 15vw, 16rem); margin-left: var(--gutter); }
+.fl .opening__type .coc__l2 { display: block; width: max-content; font-size: clamp(3rem, 9vw, 10rem); margin-left: var(--gutter); padding: 0; background: transparent; }
+.fl .opening__say { margin: 0 var(--gutter); max-width: 44rem; font-family: var(--f-prose); font-weight: 500; font-size: clamp(1.1875rem, 1.75vw, 1.5rem); line-height: 1.42; }
+@media (max-width: 47.99rem) { .fl .opening { padding-top: 5rem; } .fl .opening__type .coc__l1 { font-size: 14.2vw; } .fl .opening__type .coc__l2 { font-size: 9vw; } }
+/* the first flashlight: nothing is visible until the beam reaches it */
+.fl .beam { background: #0B0B0B; }
+.fl .beam .beam__dark { color: transparent; }
+/* Revision 37.6: the name on the seat is black. Red may outline the seat; it never writes the name */
+.fl .congregation .chair.lit .back { fill: #1C1C1C; stroke: var(--red); stroke-width: 7; paint-order: stroke; }
+.fl .congregation .chair.lit .chair__card { color: var(--ink); background: #fff; outline: 0; box-shadow: none; }
+/* Revision 37.9: the feathered wipe (a soft edge, never a hard cut through a letter) */
+.fl .wipe { -webkit-mask-image: linear-gradient(90deg, #000 42%, transparent 58%); mask-image: linear-gradient(90deg, #000 42%, transparent 58%);
+  -webkit-mask-size: 260% 100%; mask-size: 260% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: var(--wp, 0%) 0; mask-position: var(--wp, 0%) 0; }
+.fl .wipe-down { -webkit-mask-image: linear-gradient(180deg, #000 42%, transparent 58%); mask-image: linear-gradient(180deg, #000 42%, transparent 58%);
+  -webkit-mask-size: 100% 260%; mask-size: 100% 260%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: 0 var(--wp, 0%); mask-position: 0 var(--wp, 0%); }
+.fl .phead h1 .w { display: inline-block; }
+@media (prefers-reduced-motion: reduce) { .fl .wipe, .fl .wipe-down { -webkit-mask-image: none; mask-image: none; } }
+
+/* the map, rebuilt (2026-11-02): a still camera; six roads draw in, each traveller on the tip of its own line */
+.fl .map .b { fill: none; stroke: rgba(0,0,0,.16); }
+.fl .map .b.named { stroke: rgba(0,0,0,.3); }
+.fl .map .b.from { fill: rgba(0,0,0,.06); stroke: rgba(0,0,0,.55); }
+.fl .map .b.hub { fill: var(--red); fill-opacity: .12; stroke: var(--red); stroke-width: 2; }
+.fl .map .pth { stroke: rgba(0,0,0,.08); }
+.fl .map .road { fill: none; stroke: var(--red); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.fl .map .dot { fill: var(--red); stroke: #fff; stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.fl .map .origin { fill: #fff; stroke: var(--ink); stroke-width: 2; vector-effect: non-scaling-stroke; transition: fill .3s; }
+.fl .map .origin.is-on { fill: var(--ink); }
+.fl .map .ring { fill: none; stroke: var(--red); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.fl .map__labels { position: absolute; inset: 0; pointer-events: none; }
+.fl .map__label { position: absolute; left: 0; top: 0; margin: 0; padding-left: .75rem; display: grid; gap: .1rem; will-change: transform, opacity; opacity: 0; translate: 0 -50%; }
+.fl .map__label b { font: 500 .75rem/1.1 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink); background: rgba(255,255,255,.85); width: max-content; }
+.fl .map__label span { font: italic 400 .875rem/1.2 var(--f-prose); color: var(--ink-2); background: rgba(255,255,255,.85); width: max-content; }
+.fl .map__label.is-hub b { color: var(--red); font-size: .8125rem; }
+.fl .map__label.is-hub { padding-left: 1.75rem; }
+@media (max-width: 47.99rem) { .fl .map__label b { font-size: .625rem; } .fl .map__label span { font-size: .75rem; } }
+.fl .map__label.flip { padding-left: 0; padding-right: .75rem; translate: -100% -50%; text-align: right; justify-items: end; }
+.fl .map__label.is-hub { padding-left: 2.6rem; } .fl .map__label.is-hub.flip { padding-left: 0; padding-right: 2.6rem; }
+.fl .map__label b i { display: none; font-style: normal; }
+.fl .map__label b { font-size: .8125rem; } .fl .map__label span { font-size: .9375rem; }
