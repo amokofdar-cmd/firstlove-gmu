@@ -36,7 +36,7 @@
   };
 
   /* asset base: components live in explore/c/, logos in /logos/web */
-  FL.asset = function (name) { return (FL.base || "https://firstlove-gmu-preview.netlify.app/logos/web/") + name; };
+  FL.asset = function (name) { return (FL.base || "https://amokofdar-cmd.github.io/firstlove-gmu/logos/web/") + name; };
 
   FL.reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   FL.coarse = matchMedia("(pointer: coarse)").matches;
@@ -326,7 +326,7 @@
 (function () {
   "use strict";
   var FL = window.FL, NS = "http://www.w3.org/2000/svg";
-  FL.base = FL.base || "https://firstlove-gmu-preview.netlify.app/logos/web/";
+  FL.base = FL.base || "https://amokofdar-cmd.github.io/firstlove-gmu/logos/web/";
   FL.config.service.place = "The Hub";                      // Revision 8: every road converges on The Hub, where the service meets
   var $ = function (s, r) { return (r || document).querySelector(s); }, $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
   var svgEl = function (tag, attrs, parent) { var n = document.createElementNS(NS, tag); for (var k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
@@ -423,10 +423,10 @@
     var gone = function () { root.classList.add("is-gone"); html.classList.remove("fl-intro"); if (FL.lenis) FL.lenis.start(); FL.introDone = true; dispatchEvent(new Event("fl:intro-done")); if (window.ScrollTrigger) window.ScrollTrigger.refresh(); };
     if (FL.reduced || q.get("intro") === "off" || location.hash.length > 1 || (q.get("t") !== null && +q.get("t") > 11)) { gone(); return; }   // "Plan your visit" lands inside the page, not behind the intro
     html.classList.add("fl-intro");
-    var cv = $("canvas", root), ctx = cv.getContext("2d"), dir = (root.getAttribute("data-frames") || "https://firstlove-gmu-preview.netlify.app/explore/frames/");
+    var cv = $("canvas", root), ctx = cv.getContext("2d"), dir = (root.getAttribute("data-frames") || "https://amokofdar-cmd.github.io/firstlove-gmu/explore/frames/");
     var img = function (src) { var i = new Image(); i.src = src; return i; };
     var lerp = function (a, b, t) { return a + (b - a) * t; }, ease = function (t) { t = clamp(t, 0, 1); return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
-    Promise.all([fetch(dir + "intro-k.json").then(function (r) { return r.json(); }), fetch("https://firstlove-gmu-preview.netlify.app/explore/data/marks.json").then(function (r) { return r.json(); })]).then(function (both) {
+    Promise.all([fetch(dir + "intro-k.json").then(function (r) { return r.json(); }), fetch("https://amokofdar-cmd.github.io/firstlove-gmu/explore/data/marks.json").then(function (r) { return r.json(); })]).then(function (both) {
       var M = both[0], MK = both[1];
       // Revision 48: the previous build's transitions exactly as they were (the generated morph frames, the camera following
       // each form, neighbouring frames blended for 60fps), retimed: each appearance .6s, each transition .3s, lockup 2s; 4.7s.
@@ -630,7 +630,7 @@
     var host = $(".map__svg", root), labels = $(".map__labels", root);
     var ROADS = [["Johnson Center", "the middle of campus"], ["Fenwick Library", "where you study"], ["Lecture Hall", "where you learn", null, "left"],
                  ["Commonwealth Hall", "where you live"], ["Liberty Square", "where you live"], ["Rappahannock Parking Deck", "where you park", "Rappahannock Deck"]];
-    fetch(root.getAttribute("data-map") || "https://firstlove-gmu-preview.netlify.app/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
+    fetch(root.getAttribute("data-map") || "https://amokofdar-cmd.github.io/firstlove-gmu/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
       var hub = D.hub, roads = ROADS.map(function (rd) {
         var w = D.walks.filter(function (x) { return x.from === rd[0]; })[0]; if (!w) return null;
         var R = w.route.slice(); if (Math.hypot(R[R.length - 1][0] - hub[0], R[R.length - 1][1] - hub[1]) > 4) R.push(hub);
@@ -739,7 +739,7 @@
   /* ---------- origin: one line from Legon (2012) to Fairfax, drawn by scroll ---------- */
   var origin = function (root, gsap) {
     var host = $(".origin__map", root);
-    fetch(root.getAttribute("data-dots") || "https://firstlove-gmu-preview.netlify.app/explore/data/world-dots.json").then(function (r) { return r.json(); }).then(function (D) {
+    fetch(root.getAttribute("data-dots") || "https://amokofdar-cmd.github.io/firstlove-gmu/explore/data/world-dots.json").then(function (r) { return r.json(); }).then(function (D) {
       var small = FL.small(), L0 = small ? -95 : -110, L1 = small ? 15 : 30, A0 = 62, A1 = -8, W = 1000, H = W * (A0 - A1) / (L1 - L0);
       var X = function (lon) { return (lon - L0) / (L1 - L0) * W; }, Y = function (lat) { return (A0 - lat) / (A0 - A1) * H; };
       var svg = svgEl("svg", { viewBox: "0 0 " + W + " " + H.toFixed(0), role: "img", "aria-label": "A line from Legon, Accra, Ghana to Fairfax, Virginia" }, host);
@@ -875,7 +875,7 @@
 
   /* ---------- WILD CARD W2 (Claude original): how far is The Hub from where you are? Real paths, real minutes. ---------- */
   var walk = function (root, gsap) {
-    fetch(root.getAttribute("data-map") || "https://firstlove-gmu-preview.netlify.app/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
+    fetch(root.getAttribute("data-map") || "https://amokofdar-cmd.github.io/firstlove-gmu/site/data/campus.json").then(function (r) { return r.json(); }).then(function (D) {
       var sel = $("select", root), num = $(".walk__num", root), host = $(".walk__map", root);
       // every on-campus residence hall first (Mason Housing's names), then the other places on campus
       [["hall", "Residence halls"], ["place", "Around campus"]].forEach(function (g) {
