@@ -80,10 +80,10 @@
   FL.schedule = function () {
     var list = FL.config.gatherings.map(function (g) {
       var times = (g.time || "").split(/[–-]/), s0 = hm(times[0] + (/(AM|PM)/i.test(times[0]) ? "" : " " + ((g.time.match(/[AP]M/i) || ["PM"])[0]))), e0 = hm(times[1] || "");
-      return { title: g.title, dow: DOWS.indexOf(String(g.day).toLowerCase().replace(/s$/, "")), s: s0, e: e0 || [s0[0] + 1, s0[1]], where: g.place };
+      return { title: g.title, intake: g.intake || "special", dow: DOWS.indexOf(String(g.day).toLowerCase().replace(/s$/, "")), s: s0, e: e0 || [s0[0] + 1, s0[1]], where: g.place };
     });
     var sv = FL.config.service, sd = DOWS.indexOf(String(sv.day).toLowerCase().replace(/s$/, "")), st = hm(sv.time);
-    if (sd > -1 && st) list.unshift({ title: "Service", dow: sd, s: st, e: [st[0] + 2, st[1]], where: "The Hub" });   // appears once Kofi supplies the day
+    if (sd > -1 && st) list.unshift({ title: "Service", intake: "special", dow: sd, s: st, e: [st[0] + 2, st[1]], where: "The Hub" });   // appears once Kofi supplies the day
     return list.filter(function (g) { return g.dow > -1 && g.s; });
   };
   FL.upcoming = function (count, days, live) {           // the next gatherings from now; live: include one in progress
@@ -91,7 +91,7 @@
     for (var k = 0; k < (days || 28); k++) { var d = new Date(now); d.setDate(d.getDate() + k);
       FL.schedule().forEach(function (g) { if (d.getDay() !== g.dow) return;
         var st = new Date(d); st.setHours(g.s[0], g.s[1], 0, 0); var en = new Date(d); en.setHours(g.e[0], g.e[1], 0, 0);
-        if (st > now || (live && en > now)) out.push({ title: g.title, start: st, end: en, where: g.where }); }); }
+        if (st > now || (live && en > now)) out.push({ title: g.title, intake: g.intake, start: st, end: en, where: g.where }); }); }
     return out.sort(function (a, b) { return a.start - b.start; }).slice(0, count || 6);
   };
   FL.when = function (d) { return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
@@ -467,6 +467,22 @@
     window.ScrollTrigger.create({ trigger: $(".slide__pin", root), start: "top top", end: "+=220%", pin: true, scrub: 0.6, onUpdate: function (st) { p = st.progress; if (img) img.style.transform = "scale(" + (1.12 - 0.12 * p).toFixed(3) + ")"; } });
   };
 
+  /* ---------- the forms send to the church (2026-11-05): NOVA's website-intake function, nothing else. It answers 201 (saved),
+     or 400 with a reason in plain words, shown to the visitor as it is. Only the three hosts the function accepts send for
+     real (Mason 360 and the GitHub host); anywhere else, ?send=off, and the storyboard hook do a dry run. ---------- */
+  var LIVE = /(^|\.)mason360\.gmu\.edu$|^amokofdar-cmd\.github\.io$/.test(location.hostname);
+  FL.dry = !LIVE || new URLSearchParams(location.search).get("send") === "off";
+  FL.send = function (body) {
+    var c = FL.config.intake; body.source = "website";
+    if (FL.dry) { console.info("[First Love] dry run, not sent:", body.kind); return Promise.resolve({ status: 201, dry: true }); }
+    return fetch(c.url, { method: "POST", headers: { "Content-Type": "application/json", apikey: c.key, Authorization: "Bearer " + c.key }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { status: r.status, why: j && j.error }; }); },
+            function () { return { status: 0 }; });
+  };
+  FL.sendErr = function (res) { return res.status === 400 && res.why ? res.why.charAt(0).toUpperCase() + res.why.slice(1) : "That did not send. Please try again in a moment."; };
+  var ymd = function (d) { return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); };
+  var hp = function (form) { var h = $("[name=company]", form); return h ? h.value : ""; };   // the honeypot: hidden, always empty from a person
+
   /* ---------- the seats: your name writes itself on the chair as you type (Revisions 14, 15, 20, 22) ---------- */
   var CHAIR = '<svg viewBox="0 0 160 230" aria-hidden="true"><rect class="back" x="14" y="6" width="132" height="112" rx="16"/><path class="seam" d="M24 18h112"/>' +
     '<path class="frame" d="M18 116v18 M142 116v18"/><rect class="seat" x="8" y="128" width="144" height="18" rx="6"/>' +
@@ -505,7 +521,20 @@
         nameI.focus(); nameI.setAttribute("aria-invalid", "true"); nameI.placeholder = "Your first and last name, so we can save your seat";
         return;
       }
-      nameI.removeAttribute("aria-invalid"); congregation(cong, n);
+      nameI.removeAttribute("aria-invalid");
+      var u = chosen(), btn = $("button[type=submit]", form), err = $(".form__err", form);
+      if (!u) return;
+      btn.disabled = true; if (err) err.hidden = true;
+      FL.send({ kind: "registration", gathering_key: u.intake || "special", gathering_date: ymd(u.start), name: n.you, email: null,
+        phone: ($("[name=phone]", form).value || "").trim() || null, seats: n.friend ? 2 : 1, needs_lift: $("[name=lift]", form).checked, company: hp(form) })
+        .then(function (res) {
+          btn.disabled = false;
+          if (res.status !== 201) { if (err) { err.textContent = FL.sendErr(res); err.hidden = false; } return; }
+          show(n);
+        });
+    });
+    var show = function (n) {
+      congregation(cong, n);
       say.textContent = n.you ? "Your seat is saved, " + n.you.split(" ")[0] + "." : "Your seat is saved.";
       spec.innerHTML = where().replace(/\/\//g, '<span class="sep">//</span>');
       over.classList.add("is-on"); html.style.overflow = "hidden"; if (FL.lenis) FL.lenis.stop(); $(".seated__close", over).focus();
@@ -514,12 +543,14 @@
         gsap.fromTo($$(".chair.lit", cong), { scale: 0.9, y: 24, opacity: 0, transformOrigin: "50% 100%" }, { scale: 1, y: 0, opacity: 1, duration: 0.52, delay: 0.35, ease: "back.out(2.4)", stagger: 0.1 });
         gsap.fromTo([say, spec, $(".seated__acts", over)], { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, delay: 0.55, ease: "power3.out", stagger: 0.06 });
       }
-    });
+    };
+    var m360 = $(".seated__m360", over);                 // the hand-off: register on Mason 360 too (the events list; the line above names the gathering and its date)
+    if (m360) m360.addEventListener("click", function () { location.href = FL.config.links.mason360Events; });
     $(".seated__close", over).addEventListener("click", function () { over.classList.remove("is-on"); html.style.overflow = ""; if (FL.lenis) FL.lenis.start(); });
     addEventListener("keydown", function (e) { if (e.key === "Escape" && over.classList.contains("is-on")) $(".seated__close", over).click(); });
     $(".seated__save", over).addEventListener("click", function () { saveSeat(names(), where()); });
     var q = new URLSearchParams(location.search);       // storyboard hook: ?seats=Ama%20Mensah&friend=1&submit=1
-    if (q.get("seats")) { nameI.value = q.get("seats"); friendI.checked = q.get("friend") === "1"; if (q.get("submit") === "1") setTimeout(function () { form.requestSubmit(); }, 600); }
+    if (q.get("seats")) { FL.dry = true; nameI.value = q.get("seats"); friendI.checked = q.get("friend") === "1"; if (q.get("submit") === "1") setTimeout(function () { form.requestSubmit(); }, 600); }
   };
   /* the seat becomes the invitation: a shareable image of your saved seat(s) (Revision 16) */
   var saveSeat = function (n, where) {
@@ -843,7 +874,20 @@
       var f = document.createElement("iframe"); f.src = "https://www.youtube-nocookie.com/embed/" + m[1] + "?autoplay=1"; f.allow = "autoplay; encrypted-media; picture-in-picture"; f.allowFullscreen = true; f.title = "Latest message"; art.appendChild(f);
     });
   };
-  var forms = function () { $$("form.form:not([data-seats])").forEach(function (f) { f.addEventListener("submit", function (e) { e.preventDefault(); f.classList.add("is-sent"); }); }); };
+  var forms = function () {
+    $$("form.form:not([data-seats])").forEach(function (f) {
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        var btn = $("button[type=submit]", f), err = $(".form__err", f), v = function (k) { var i = $("[name=" + k + "]", f); return i ? (i.value || "").trim() || null : null; };
+        btn.disabled = true; if (err) err.hidden = true;
+        FL.send({ kind: "prayer", request: v("request"), name: v("name"), email: null, phone: v("phone"), company: hp(f) }).then(function (res) {
+          btn.disabled = false;
+          if (res.status === 201) { f.classList.add("is-sent"); return; }
+          if (err) { err.textContent = FL.sendErr(res); err.hidden = false; }
+        });
+      });
+    });
+  };
   var fork = function (root) {
     var out = $(".fork-ans", root), btns = $$(".fork button", root);
     btns.forEach(function (b) { b.addEventListener("click", function () {

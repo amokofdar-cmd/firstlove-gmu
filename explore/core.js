@@ -12,11 +12,15 @@
   FL.config = {
     service: { day: "[SERVICE DAY]", time: "[TIME]", place: "[PLACE]" },
     gatherings: [
-      { key: "bible", title: "Bible Study", day: "Sundays", time: "1:00–2:00 PM", place: "Lecture Hall Building, Room 2",
+      { key: "bible", intake: "bible-study", title: "Bible Study", day: "Sundays", time: "1:00–2:00 PM", place: "Lecture Hall Building, Room 2",
         plain: "We open the Bible together, read it slowly, and talk about what it says." },
-      { key: "ready", title: "READY@20", day: "Wednesdays", time: "7:00–8:30 PM", place: "The Hub, Rooms 3–5",
+      { key: "ready", intake: "ready20", title: "READY@20", day: "Wednesdays", time: "7:00–8:30 PM", place: "The Hub, Rooms 3–5",
         plain: "Midweek: prayer, the Word, and learning to tell people about Jesus." }
     ],
+    intake: {                                            // where the two forms send (NOVA website-intake, 2026-11-05); the key is the public anon key
+      url: "https://fzcujrfopvlokpqigewh.supabase.co/functions/v1/website-intake",
+      key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6Y3VqcmZvcHZsb2twcWlnZXdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2OTE5NTMsImV4cCI6MjEwMzI2Nzk1M30.bMr5xfB7t65tyZslEVEwemTZhmDcs7tNwD86Fi0_C9k"
+    },
     links: {
       groupChat: null,                                   // NEEDED FROM KOFI
       instagram: "https://www.instagram.com/firstlovegmu/",
